@@ -1,9 +1,16 @@
 
 package org.usfirst.frc.team6171.robot;
 
+import java.util.ArrayList;
+
+//import javax.swing.JOptionPane;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -14,64 +21,142 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
-    final String defaultAuto = "Default";
-    final String customAuto = "My Auto";
-    String autoSelected;
-    SendableChooser chooser;
-	
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
+	
+	VictorSP leftFront, leftRear, rightFront, rightRear, leftVic, rightVic;
+	RobotDrive drive;
+	
+	Timer time;
+	OI oi;
+	
+	boolean tankDrive; // used to see if mode button is clicked
+	
+	//these store the data from teleop for use in autonomous replay
+	ArrayList<Double> repL, repR;
+	
+	//these variables control the flow of the replay
+	int replayCounter;
+	int isReplay;
+	
     public void robotInit() {
-        chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);
+    	leftFront = new VictorSP(RobotMap.KleftFront);
+    	leftRear = new VictorSP(RobotMap.KleftRear);
+    	rightFront = new VictorSP(RobotMap.KrightFront);
+    	rightRear = new VictorSP(RobotMap.KrightRear);
+    	leftVic = new VictorSP(RobotMap.KleftVic);
+    	rightVic = new VictorSP(RobotMap.KrightVic);
+    	
+    	drive = new RobotDrive(rightFront, rightRear, leftFront, leftRear);
+    	drive.setInvertedMotor(MotorType.kRearLeft, true);
+    	drive.setInvertedMotor(MotorType.kFrontLeft, true);
+    	//drive.setInvertedMotor
+    	oi = new OI();
+    	
+    	time = new Timer();
+    	
+    	repL = new ArrayList<Double>();
+    	repR = new ArrayList<Double>();
+    	replayCounter = 0;
     }
     
-	/**
-	 * This autonomous (along with the chooser code above) shows how to select between different autonomous modes
-	 * using the dashboard. The sendable chooser code works with the Java SmartDashboard. If you prefer the LabVIEW
-	 * Dashboard, remove all of the chooser code and uncomment the getString line to get the auto name from the text box
-	 * below the Gyro
-	 *
-	 * You can add additional auto modes by adding additional comparisons to the switch structure below with additional strings.
-	 * If using the SendableChooser make sure to add them to the chooser code above as well.
-	 */
-    public void autonomousInit() {
-    	autoSelected = (String) chooser.getSelected();
-//		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
+    public void autonomousInit(){
+    	//isReplay = JOptionPane.showOptionDialog(null, "Would you like to replay?", "Replay Chooser", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+    	time.reset();
+    	time.start();
+    	replayCounter = 0;
     }
-
+    
     /**
      * This function is called periodically during autonomous
-     */
-    public void autonomousPeriodic() {
-    	switch(autoSelected) {
-    	case customAuto:
-        //Put custom auto code here   
-            break;
-    	case defaultAuto:
-    	default:
-    	//Put default auto code here
-            break;
+    */ 
+    public void autonomousPeriodic(){
+    	if(isReplay == 1){
+    		drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
+    		replayCounter++;
     	}
+    	double motorSpeed = FlyWheel.MAX_RPM * (FlyWheel.DESIRED_RPM/FlyWheel.MAX_RPM);
+    	leftVic.set(motorSpeed);
+    	rightVic.set(motorSpeed);
+    	
     }
+    
 
+    public void teleopInit(){
+    	repR.clear();
+    	repL.clear();
+    	tankDrive = false;
+    }
+    
     /**
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        
-    }
+    	SmartDashboard.putDouble("Joystick", oi.joy.getRawAxis(1));
+    	SmartDashboard.putData("Motor", leftFront);
+    	SmartDashboard.putData("Motor", leftRear);
+    	SmartDashboard.putData("Motor", rightFront);
+    	SmartDashboard.putData("Motor", rightRear);
+    	Double l, r;
+
+    	/*boolean boost = false;
+    	boolean boosted = false;
+    	if(boost && !oi.A.get())
+    	{
+    		boost = true;
+    		boosted = !boosted;
+    		if(boosted)
+    		{
+    			drive.setMaxOutput(.75);
+    		}
+    		else
+    			drive.setMaxOutput(.5);
+    	}
+    	if(oi.A.get())
+    		boost = true;*/
+    	
+		if(oi.LB.get() && oi.RB.get())
+			drive.setMaxOutput(1);
+		else
+			drive.setMaxOutput(.3);
+    	
+    	//Following code uses mode button to change from driving modes
+		//pauses thread for half a second to give user time to release button
+    	if(oi.A.get()){
+    		tankDrive = !tankDrive;
+    		Timer.delay(.5);
+    	}
+    	
+		if(tankDrive)
+    	{
+    		l = oi.joy.getRawAxis(OI.LEFTY); // value added
+    		r = oi.joy.getRawAxis(OI.RIGHTY); // value added
+    		   	
+    		drive.tankDrive(l, r);
+    		repL.add(l);
+    		repR.add(r);
+    	}
+    	else
+    	{
+    		l = oi.joy.getRawAxis(OI.LEFTY); // value added
+    		r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
+    		   	
+    		drive.arcadeDrive(l, r);
+    		repL.add(l);
+    		repR.add(r);
+    	}
+  }
     
     /**
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    
+    	LiveWindow.addActuator("LeftFront", 0, leftFront);
+    	LiveWindow.addActuator("LeftRear", 0, leftRear);
+    	LiveWindow.addActuator("RightFront", 0, rightFront);
+    	LiveWindow.addActuator("RightRear", 0, rightRear);
     }
     
 }
