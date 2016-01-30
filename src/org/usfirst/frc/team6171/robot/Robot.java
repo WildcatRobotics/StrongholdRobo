@@ -51,7 +51,6 @@ public class Robot extends IterativeRobot {
     	drive = new RobotDrive(rightFront, rightRear, leftFront, leftRear);
     	drive.setInvertedMotor(MotorType.kRearLeft, true);
     	drive.setInvertedMotor(MotorType.kFrontLeft, true);
-    	//drive.setInvertedMotor
     	oi = new OI();
     	
     	time = new Timer();
@@ -62,7 +61,6 @@ public class Robot extends IterativeRobot {
     }
     
     public void autonomousInit(){
-    	//isReplay = JOptionPane.showOptionDialog(null, "Would you like to replay?", "Replay Chooser", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
     	time.reset();
     	time.start();
     	replayCounter = 0;
@@ -75,9 +73,7 @@ public class Robot extends IterativeRobot {
     	if(isReplay == 1){
     		drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
     		replayCounter++;
-    	}
-    	double motorSpeed = FlyWheel.MAX_RPM * (FlyWheel.DESIRED_RPM/FlyWheel.MAX_RPM);
-    	
+    	}    	
     }
     
 
@@ -91,7 +87,7 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	SmartDashboard.putDouble("Joystick", oi.joy.getRawAxis(1));
+    	SmartDashboard.putNumber("Joystick", oi.joy.getRawAxis(1));
     	SmartDashboard.putData("Motor", leftFront);
     	SmartDashboard.putData("Motor", leftRear);
     	SmartDashboard.putData("Motor", rightFront);
