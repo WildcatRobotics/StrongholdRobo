@@ -12,18 +12,24 @@ public class OI {
 	public static final int RIGHTY = 5;
 	
 	Joystick joy;
-	JoystickButton X, A, B, Y, LB, RB, mode;
+	JoystickButton X, A, B, Y, LB, RB, back, start, leftJoy, rightJoy;
 	
 	public OI(){
 		joy = new Joystick(0);
 		//buttons
-		//X = new JoystickButton(joy, 1);
 		A = new JoystickButton(joy, 1);
-		B = new JoystickButton(joy, 3);
+		B = new JoystickButton(joy, 2);
+		X = new JoystickButton(joy, 3);
 		Y = new JoystickButton(joy, 4);
 		LB = new JoystickButton(joy, 5);
 		RB = new JoystickButton(joy, 6);
-		mode = new JoystickButton(joy, 0); //need to calibrate to correct button. 
+		back = new JoystickButton(joy, 7);
+		start = new JoystickButton(joy, 8);
+		leftJoy = new JoystickButton(joy, 9);
+		rightJoy = new JoystickButton(joy, 10);
+		
+		
+		//mode = new JoystickButton(joy, 0); //need to calibrate to correct button. 
 		
 				
 		

@@ -26,7 +26,7 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
 	
-	VictorSP leftFront, leftRear, rightFront, rightRear, leftVic, rightVic;
+	VictorSP leftFront, leftRear, rightFront, rightRear, test;
 	RobotDrive drive;
 	
 	Timer time;
@@ -46,8 +46,7 @@ public class Robot extends IterativeRobot {
     	leftRear = new VictorSP(RobotMap.KleftRear);
     	rightFront = new VictorSP(RobotMap.KrightFront);
     	rightRear = new VictorSP(RobotMap.KrightRear);
-    	leftVic = new VictorSP(RobotMap.KleftVic);
-    	rightVic = new VictorSP(RobotMap.KrightVic);
+    	test = new VictorSP(9);
     	
     	drive = new RobotDrive(rightFront, rightRear, leftFront, leftRear);
     	drive.setInvertedMotor(MotorType.kRearLeft, true);
@@ -78,8 +77,6 @@ public class Robot extends IterativeRobot {
     		replayCounter++;
     	}
     	double motorSpeed = FlyWheel.MAX_RPM * (FlyWheel.DESIRED_RPM/FlyWheel.MAX_RPM);
-    	leftVic.set(motorSpeed);
-    	rightVic.set(motorSpeed);
     	
     }
     
@@ -147,6 +144,13 @@ public class Robot extends IterativeRobot {
     		repL.add(l);
     		repR.add(r);
     	}
+		if(oi.Y.get())
+			test.set(1);
+		else
+			test.set(0);
+		
+		System.out.println(oi.joy.getPOV());
+		SmartDashboard.putNumber("POV Value", oi.joy.getPOV());
   }
     
     /**
