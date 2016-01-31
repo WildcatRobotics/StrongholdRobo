@@ -3,9 +3,14 @@ package org.usfirst.frc.team6171.robot;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.Encoder;
+
 //import javax.swing.JOptionPane;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.Timer;
@@ -29,6 +34,14 @@ public class Robot extends IterativeRobot {
 	VictorSP leftFront, leftRear, rightFront, rightRear, test;
 	RobotDrive drive;
 	
+	Encoder leftEnc, rightEnc;
+	
+	//these are the PID constants
+	PIDController pid;
+	public static final int Kp = 0;
+	public static final int Ki = 0;
+	public static final int Kd = 0;
+	
 	Timer time;
 	OI oi;
 	
@@ -51,6 +64,20 @@ public class Robot extends IterativeRobot {
     	drive = new RobotDrive(rightFront, rightRear, leftFront, leftRear);
     	drive.setInvertedMotor(MotorType.kRearLeft, true);
     	drive.setInvertedMotor(MotorType.kFrontLeft, true);
+    	
+    	//configure both Encoders
+    	leftEnc = new Encoder(0, 1, true, EncodingType.k4X);
+    	leftEnc.setPIDSourceType(PIDSourceType.kDisplacement);
+    	leftEnc.setDistancePerPulse(.08726646);
+    	leftEnc.setMinRate(1);
+    	leftEnc.setSamplesToAverage(5);
+    	
+    	rightEnc = new Encoder(2, 3, false, EncodingType.k4X);
+    	rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
+    	rightEnc.setDistancePerPulse(.08726646);
+    	rightEnc.setMinRate(1);
+    	rightEnc.setSamplesToAverage(5);
+    	
     	oi = new OI();
     	
     	time = new Timer();
