@@ -37,10 +37,6 @@ public class Robot extends IterativeRobot {
 	Encoder leftEnc, rightEnc;
 	
 	//these are the PID constants
-	PIDController pid;
-	public static final int Kp = 0;
-	public static final int Ki = 0;
-	public static final int Kd = 0;
 	
 	Timer time;
 	OI oi;

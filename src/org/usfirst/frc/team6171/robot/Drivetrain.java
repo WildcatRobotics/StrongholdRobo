@@ -5,19 +5,22 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 
 public class Drivetrain {
-private VictorSP leftFront, leftRear, rightFront, rightRear;
-RobotDrive drive;
+	public VictorSP leftFront, leftRear, rightFront, rightRear;
+	public RobotDrive drive;
+	public Encoder
 
-public Drivetrain()
-{
-	leftFront = new VictorSP(RobotMap.KleftFront);
-	leftRear = new VictorSP(RobotMap.KleftRear);
-	rightFront = new VictorSP(RobotMap.KrightFront);
-	rightRear = new VictorSP(RobotMap.KrightRear);
-	drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
-	drive.setInvertedMotor(MotorType.kRearLeft, true);
-	drive.setInvertedMotor(MotorType.kFrontLeft, true);
-}
+	public Drivetrain() {
+		leftFront = new VictorSP(RobotMap.KleftFront);
+		leftRear = new VictorSP(RobotMap.KleftRear);
+		rightFront = new VictorSP(RobotMap.KrightFront);
+		rightRear = new VictorSP(RobotMap.KrightRear);
+		
+		drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
+		drive.setInvertedMotor(MotorType.kRearLeft, true);
+		drive.setInvertedMotor(MotorType.kFrontLeft, true);
+		
+		
+	}
 
 }
 
