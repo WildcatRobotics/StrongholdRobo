@@ -1,13 +1,14 @@
 package org.usfirst.frc.team6171.robot;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
+import edu.wpi.first.wpilibj.VictorSP;
 
 public class Drivetrain {
 	public VictorSP leftFront, leftRear, rightFront, rightRear;
 	public RobotDrive drive;
-	public Encoder
+	public Encoder leftEnc, rightEnc;
 
 	public Drivetrain() {
 		leftFront = new VictorSP(RobotMap.KleftFront);

@@ -31,13 +31,6 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
 	
-	VictorSP leftFront, leftRear, rightFront, rightRear, test;
-	RobotDrive drive;
-	
-	Encoder leftEnc, rightEnc;
-	
-	//these are the PID constants
-	
 	Timer time;
 	OI oi;
 	
@@ -51,28 +44,6 @@ public class Robot extends IterativeRobot {
 	int isReplay;
 	
     public void robotInit() {
-    	leftFront = new VictorSP(RobotMap.KleftFront);
-    	leftRear = new VictorSP(RobotMap.KleftRear);
-    	rightFront = new VictorSP(RobotMap.KrightFront);
-    	rightRear = new VictorSP(RobotMap.KrightRear);
-    	test = new VictorSP(9);
-    	
-    	drive = new RobotDrive(rightFront, rightRear, leftFront, leftRear);
-    	drive.setInvertedMotor(MotorType.kRearLeft, true);
-    	drive.setInvertedMotor(MotorType.kFrontLeft, true);
-    	
-    	//configure both Encoders
-    	leftEnc = new Encoder(0, 1, true, EncodingType.k4X);
-    	leftEnc.setPIDSourceType(PIDSourceType.kDisplacement);
-    	leftEnc.setDistancePerPulse(.08726646);
-    	leftEnc.setMinRate(1);
-    	leftEnc.setSamplesToAverage(5);
-    	
-    	rightEnc = new Encoder(2, 3, false, EncodingType.k4X);
-    	rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
-    	rightEnc.setDistancePerPulse(.08726646);
-    	rightEnc.setMinRate(1);
-    	rightEnc.setSamplesToAverage(5);
     	
     	oi = new OI();
     	
@@ -110,11 +81,11 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	SmartDashboard.putNumber("Joystick", oi.joy.getRawAxis(1));
-    	SmartDashboard.putData("Motor", leftFront);
-    	SmartDashboard.putData("Motor", leftRear);
-    	SmartDashboard.putData("Motor", rightFront);
-    	SmartDashboard.putData("Motor", rightRear);
+    	//SmartDashboard.putNumber("Joystick", oi.joy.getRawAxis(1));
+    	//SmartDashboard.putData("Motor", leftFront);
+    	//SmartDashboard.putData("Motor", leftRear);
+    	//SmartDashboard.putData("Motor", rightFront);
+    	//SmartDashboard.putData("Motor", rightRear);
     	Double l, r;
 
     	/*boolean boost = false;
@@ -176,10 +147,10 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    	LiveWindow.addActuator("LeftFront", 0, leftFront);
-    	LiveWindow.addActuator("LeftRear", 0, leftRear);
-    	LiveWindow.addActuator("RightFront", 0, rightFront);
-    	LiveWindow.addActuator("RightRear", 0, rightRear);
+    	//LiveWindow.addActuator("LeftFront", 0, leftFront);
+    	//LiveWindow.addActuator("LeftRear", 0, leftRear);
+    	//LiveWindow.addActuator("RightFront", 0, rightFront);
+    	//LiveWindow.addActuator("RightRear", 0, rightRear);
     }
     
 }
