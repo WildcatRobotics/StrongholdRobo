@@ -1,4 +1,5 @@
 package org.usfirst.frc.team6171.robot;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.VictorSP;
 
@@ -11,7 +12,7 @@ public class Winch {
 
 	 public Winch(){
 		 winch = new VictorSP(2);
-		 encOne = new Encoder(4);
+		 encOne = new Encoder(0, 1, true, EncodingType.k4X);
 		 //Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
 	 

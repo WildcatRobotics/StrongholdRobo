@@ -33,6 +33,7 @@ public class Robot extends IterativeRobot {
 	
 	Timer time;
 	OI oi;
+	Drivetrain driveT;
 	
 	boolean tankDrive; // used to see if mode button is clicked
 	
@@ -49,9 +50,11 @@ public class Robot extends IterativeRobot {
     	
     	time = new Timer();
     	
+    	driveT = new Drivetrain();
     	repL = new ArrayList<Double>();
     	repR = new ArrayList<Double>();
     	replayCounter = 0;
+    	
     }
     
     public void autonomousInit(){
@@ -65,7 +68,7 @@ public class Robot extends IterativeRobot {
     */ 
     public void autonomousPeriodic(){
     	if(isReplay == 1){
-    		drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
+    		driveT.drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
     		replayCounter++;
     	}    	
     }
@@ -105,9 +108,9 @@ public class Robot extends IterativeRobot {
     		boost = true;*/
     	
 		if(oi.LB.get() && oi.RB.get())
-			drive.setMaxOutput(1);
+			driveT.drive.setMaxOutput(1);
 		else
-			drive.setMaxOutput(.3);
+			driveT.drive.setMaxOutput(.3);
     	
     	//Following code uses mode button to change from driving modes
 		//pauses thread for half a second to give user time to release button
@@ -121,7 +124,7 @@ public class Robot extends IterativeRobot {
     		l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		r = oi.joy.getRawAxis(OI.RIGHTY); // value added
     		   	
-    		drive.tankDrive(l, r);
+    		driveT.drive.tankDrive(l, r);
     		repL.add(l);
     		repR.add(r);
     	}
@@ -130,14 +133,14 @@ public class Robot extends IterativeRobot {
     		l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
     		   	
-    		drive.arcadeDrive(l, r);
+    		driveT.drive.arcadeDrive(l, r);
     		repL.add(l);
     		repR.add(r);
     	}
-		if(oi.Y.get())
+		/*if(oi.Y.get())
 			test.set(1);
 		else
-			test.set(0);
+			test.set(0);*/
 		
 		System.out.println(oi.joy.getPOV());
 		SmartDashboard.putNumber("POV Value", oi.joy.getPOV());
