@@ -30,8 +30,21 @@ public class OI {
 		
 		
 		//mode = new JoystickButton(joy, 0); //need to calibrate to correct button. 
-		
-				
-		
+	}
+	public double getLeftY()
+	{
+		return joy.getRawAxis(LEFTY);
+	}
+	public double getLeftX()
+	{
+		return joy.getRawAxis(LEFTX);
+	}
+	public double getRightY()
+	{
+		return joy.getRawAxis(RIGHTY);
+	}
+	public double getRightX()
+	{
+		return joy.getRawAxis(RIGHTX);
 	}
 }

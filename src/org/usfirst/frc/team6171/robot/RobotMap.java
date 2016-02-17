@@ -6,6 +6,6 @@ public class RobotMap {
 	public static final int KleftRear = 1;
 	public static final int KrightFront = 2;
 	public static final int KrightRear = 3;
-	public static final int KleftVic = 4;
-	public static final int KrightVic = 5;
+	//public static final int KleftVic = 4;
+	//public static final int KrightVic = 5;
 }

@@ -3,7 +3,12 @@ package org.usfirst.frc.team6171.robot;
 
 import java.util.ArrayList;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 
 //import javax.swing.JOptionPane;
@@ -12,6 +17,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
@@ -33,16 +39,22 @@ public class Robot extends IterativeRobot {
 	
 	Timer time;
 	OI oi;
-	Drivetrain driveT;
+	Drivetrain driveTrain;
+	Shooter shooter;
+	Winch winch;
+	AHRS ahrs;
+	CameraServer server;
 	
+	//double setpoint;
 	boolean tankDrive; // used to see if mode button is clicked
-	
+	boolean driveA;
+	boolean isShooting, isStopping, isIntaking, push, pushed;
 	//these store the data from teleop for use in autonomous replay
-	ArrayList<Double> repL, repR;
+	//ArrayList<Double> repL, repR;
 	
 	//these variables control the flow of the replay
-	int replayCounter;
-	int isReplay;
+	//int replayCounter;
+	//int isReplay;
 	
     public void robotInit() {
     	
@@ -50,34 +62,53 @@ public class Robot extends IterativeRobot {
     	
     	time = new Timer();
     	
-    	driveT = new Drivetrain();
-    	repL = new ArrayList<Double>();
-    	repR = new ArrayList<Double>();
-    	replayCounter = 0;
+    	driveTrain = new Drivetrain();
     	
+    	shooter = new Shooter();
+    	
+    	winch = new Winch();
+    	
+    	try {
+	          ahrs = new AHRS(SPI.Port.kMXP); 
+	      } catch (RuntimeException ex ) {
+	          DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+	      }
+    	
+    	server = CameraServer.getInstance();
+        server.setQuality(50);
+        //the camera name (ex "cam0") can be found through the roborio web interface
+        server.startAutomaticCapture("cam0");
+        
+    	//repL = new ArrayList<Double>();
+    	//repR = new ArrayList<Double>();
+    	//replayCounter = 0;
+    	driveA = false;
+    	tankDrive = false;
+    	isShooting = isStopping = isIntaking = push = pushed = false;
+		pushed = false;
     }
     
     public void autonomousInit(){
-    	time.reset();
-    	time.start();
-    	replayCounter = 0;
+    	//time.reset();
+    	//time.start();
+    	//replayCounter = 0;
     }
     
     /**
      * This function is called periodically during autonomous
     */ 
     public void autonomousPeriodic(){
-    	if(isReplay == 1){
-    		driveT.drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
-    		replayCounter++;
-    	}    	
+    	//if(isReplay == 1){
+    	//	driveT.drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
+    	//	replayCounter++;
+    	//}    	
     }
     
 
     public void teleopInit(){
-    	repR.clear();
-    	repL.clear();
-    	tankDrive = false;
+    	//repR.clear();
+    	//repL.clear();
+    	
     }
     
     /**
@@ -89,7 +120,7 @@ public class Robot extends IterativeRobot {
     	//SmartDashboard.putData("Motor", leftRear);
     	//SmartDashboard.putData("Motor", rightFront);
     	//SmartDashboard.putData("Motor", rightRear);
-    	Double l, r;
+    	//Double l, r;
 
     	/*boolean boost = false;
     	boolean boosted = false;
@@ -108,40 +139,100 @@ public class Robot extends IterativeRobot {
     		boost = true;*/
     	
 		if(oi.LB.get() && oi.RB.get())
-			driveT.drive.setMaxOutput(1);
+			driveTrain.drive.setMaxOutput(1);
 		else
-			driveT.drive.setMaxOutput(.3);
+			driveTrain.drive.setMaxOutput(.3);
     	
     	//Following code uses mode button to change from driving modes
 		//pauses thread for half a second to give user time to release button
-    	if(oi.A.get()){
+    	//if(oi.A.get()){
+    	//	tankDrive = !tankDrive;
+    	//	Timer.delay(.5);
+    	//}
+		
+    	if(driveA && !oi.back.get())
+    	{
+    		driveA = false;
     		tankDrive = !tankDrive;
-    		Timer.delay(.5);
     	}
-    	
+    	if(oi.back.get())
+    		driveA = true;
 		if(tankDrive)
     	{
-    		l = oi.joy.getRawAxis(OI.LEFTY); // value added
-    		r = oi.joy.getRawAxis(OI.RIGHTY); // value added
+    		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
+    		//r = oi.joy.getRawAxis(OI.RIGHTY); // value added
     		   	
-    		driveT.drive.tankDrive(l, r);
-    		repL.add(l);
-    		repR.add(r);
+    		driveTrain.drive.arcadeDrive(oi.getLeftY(), oi.getRightY());
+    		//repL.add(l);
+    		//repR.add(r);
     	}
     	else
     	{
-    		l = oi.joy.getRawAxis(OI.LEFTY); // value added
-    		r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
+    		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
+    		//r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
     		   	
-    		driveT.drive.arcadeDrive(l, r);
-    		repL.add(l);
-    		repR.add(r);
+    		driveTrain.drive.arcadeDrive(oi.getLeftY(), oi.getRightX());
+    		//repL.add(l);
+    		//repR.add(r);
     	}
 		/*if(oi.Y.get())
 			test.set(1);
 		else
 			test.set(0);*/
-		
+		if(oi.A.get())
+    	{
+    		isShooting = false;
+    		isIntaking = true;
+    	}
+    	if(oi.B.get())
+    	{
+    		isShooting = true;
+    		isIntaking = false;
+    	}
+    	if(oi.X.get())
+    	{
+    		isShooting = false;
+    		isIntaking = false;
+    	}
+    	
+    	if(isShooting)
+    	{
+    		shooter.spinUp();
+    	}
+    	else if(isIntaking)
+    	{
+    		shooter.intakeSpin();
+    	}
+    	else
+    	{
+    		shooter.stop();
+    	}
+    	
+    	if(push && !oi.Y.get())
+    	{
+    		push = false;
+    		pushed = !pushed;
+    		if(pushed)
+    		{
+    			shooter.shoot();
+    		}
+    		else
+    		{
+    			shooter.retract();
+    		}
+    	}
+    	if(oi.Y.get())
+    		push = true;
+    	
+    	if(oi.joy.getPOV()==0)
+    	{
+    		winch.changeAngle(.5);
+    	}
+    	if(oi.joy.getPOV()==180)
+    	{
+    		winch.changeAngle(-.5);
+    	}
+    	winch.controlWinch(-ahrs.getRoll());
 		System.out.println(oi.joy.getPOV());
 		SmartDashboard.putNumber("POV Value", oi.joy.getPOV());
   }
