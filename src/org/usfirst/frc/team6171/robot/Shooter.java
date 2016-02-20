@@ -1,13 +1,12 @@
 package org.usfirst.frc.team6171.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter {
 	//public CANTalon talonLeft, talonRight;
@@ -17,15 +16,15 @@ public class Shooter {
 	
 	//public static final int MAX_RPM = 4000;
 	//public static final int DESIRED_RPM = 1000;
-	final static int SHOOT_DESIRED_RPM = 4000;
+	final static int SHOOT_DESIRED_RPM = 4250;
     final static int INTAKE_DESIRED_RPM = 1500;
 	public static final double Kp = .1;
     public static final double Ki = .001;
     public static final double Kd = .01;
-	
+	//-20
 	public Shooter(){
-		leftTalon = new CANTalon(1);
-        rightTalon = new CANTalon(2);
+		leftTalon = new CANTalon(RobotMap.KLeftTalon);
+        rightTalon = new CANTalon(RobotMap.KRightTalon);
 		
 		rightTalon.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
         rightTalon.reverseSensor(false);
@@ -47,25 +46,28 @@ public class Shooter {
         leftTalon.setI(.000823);
         leftTalon.setD(0.823);
         
-        leftTalon.changeControlMode(TalonControlMode.Speed);
-    	rightTalon.changeControlMode(TalonControlMode.Speed);
-        
         comp = new Compressor(0);
         comp.setClosedLoopControl(true);
         ds = new DoubleSolenoid(0, 1);
 	}
 	
 	public void spinUp(){
+		leftTalon.changeControlMode(TalonControlMode.Speed);
+		rightTalon.changeControlMode(TalonControlMode.Speed);
 		leftTalon.set(SHOOT_DESIRED_RPM);
 		rightTalon.set(-SHOOT_DESIRED_RPM);
 	}
 	
 	public void intakeSpin(){
+		leftTalon.changeControlMode(TalonControlMode.Speed);
+		rightTalon.changeControlMode(TalonControlMode.Speed);
 		leftTalon.set(-INTAKE_DESIRED_RPM);
 		rightTalon.set(INTAKE_DESIRED_RPM);	
 	}
 	
 	public void stop(){
+		leftTalon.changeControlMode(TalonControlMode.PercentVbus);
+		rightTalon.changeControlMode(TalonControlMode.PercentVbus);
 		leftTalon.set(0);
 		rightTalon.set(0);
 	}
@@ -78,6 +80,9 @@ public class Shooter {
 		ds.set(Value.kReverse);
 	}
 	
-	
+	public void log(){
+		SmartDashboard.putNumber("Left Talon", leftTalon.getSpeed());
+		SmartDashboard.putNumber("Right Talon", rightTalon.getSpeed());
+	}
 
 }

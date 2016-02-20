@@ -1,8 +1,6 @@
 
 package org.usfirst.frc.team6171.robot;
 
-import java.util.ArrayList;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
@@ -14,6 +12,7 @@ import edu.wpi.first.wpilibj.Encoder;
 //import javax.swing.JOptionPane;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.NamedSendable;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -49,6 +48,7 @@ public class Robot extends IterativeRobot {
 	boolean tankDrive; // used to see if mode button is clicked
 	boolean driveA;
 	boolean isShooting, isStopping, isIntaking, push, pushed;
+	boolean locked, lockHelp;
 	//these store the data from teleop for use in autonomous replay
 	//ArrayList<Double> repL, repR;
 	
@@ -86,6 +86,7 @@ public class Robot extends IterativeRobot {
     	tankDrive = false;
     	isShooting = isStopping = isIntaking = push = pushed = false;
 		pushed = false;
+		locked = lockHelp = false;
     }
     
     public void autonomousInit(){
@@ -108,7 +109,12 @@ public class Robot extends IterativeRobot {
     public void teleopInit(){
     	//repR.clear();
     	//repL.clear();
-    	
+    	winch.setAngle(0);
+    	driveA = false;
+    	tankDrive = false;
+    	isShooting = isStopping = isIntaking = push = pushed = false;
+		pushed = false;
+		locked = lockHelp = false;
     }
     
     /**
@@ -141,7 +147,7 @@ public class Robot extends IterativeRobot {
 		if(oi.LB.get() && oi.RB.get())
 			driveTrain.drive.setMaxOutput(1);
 		else
-			driveTrain.drive.setMaxOutput(.3);
+			driveTrain.drive.setMaxOutput(.5);
     	
     	//Following code uses mode button to change from driving modes
 		//pauses thread for half a second to give user time to release button
@@ -157,12 +163,20 @@ public class Robot extends IterativeRobot {
     	}
     	if(oi.back.get())
     		driveA = true;
+    	
+    	if(lockHelp && !oi.b12.get()){
+    		lockHelp = false;
+    		locked = !locked; 
+    	}
+    	if(oi.b12.get())
+    		lockHelp = true;
+
 		if(tankDrive)
     	{
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTY); // value added
     		   	
-    		driveTrain.drive.arcadeDrive(oi.getLeftY(), oi.getRightY());
+    		driveTrain.drive.tankDrive(oi.getLeftY(), -oi.getRightY()*.9);
     		//repL.add(l);
     		//repR.add(r);
     	}
@@ -171,7 +185,8 @@ public class Robot extends IterativeRobot {
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
     		   	
-    		driveTrain.drive.arcadeDrive(oi.getLeftY(), oi.getRightX());
+    		driveTrain.drive.arcadeDrive(-oi.getRightX(), -oi.getLeftY());
+    		
     		//repL.add(l);
     		//repR.add(r);
     	}
@@ -179,17 +194,17 @@ public class Robot extends IterativeRobot {
 			test.set(1);
 		else
 			test.set(0);*/
-		if(oi.A.get())
+		if(oi.leftSmall.get())
     	{
     		isShooting = false;
     		isIntaking = true;
     	}
-    	if(oi.B.get())
+    	if(oi.rightSmall.get())
     	{
     		isShooting = true;
     		isIntaking = false;
     	}
-    	if(oi.X.get())
+    	if(oi.leftBig.get())
     	{
     		isShooting = false;
     		isIntaking = false;
@@ -208,7 +223,7 @@ public class Robot extends IterativeRobot {
     		shooter.stop();
     	}
     	
-    	if(push && !oi.Y.get())
+    	if(push && !oi.trigger.get())
     	{
     		push = false;
     		pushed = !pushed;
@@ -221,9 +236,10 @@ public class Robot extends IterativeRobot {
     			shooter.retract();
     		}
     	}
-    	if(oi.Y.get())
+    	if(oi.trigger.get())
     		push = true;
     	
+    	/*
     	if(oi.joy.getPOV()==0)
     	{
     		winch.changeAngle(.5);
@@ -232,9 +248,37 @@ public class Robot extends IterativeRobot {
     	{
     		winch.changeAngle(-.5);
     	}
-    	winch.controlWinch(-ahrs.getRoll());
-		System.out.println(oi.joy.getPOV());
-		SmartDashboard.putNumber("POV Value", oi.joy.getPOV());
+    	*/
+    	//winch.controlWinch(-ahrs.getPitch());
+    	
+//    	if(winchUp)
+//    		winch.controlWinch(oi.joy.getRawAxis(3), ahrs.getRoll());
+//    	else
+    	if(oi.b9.get())
+    		winch.setAngle(25);
+    	if(oi.b7.get())
+    		winch.setAngle(50);
+    	if(oi.b8.get())
+    		winch.setAngle(55);
+    	if(oi.b11.get())
+    		winch.setAngle(0);
+    	if(oi.b10.get()){
+    		winch.setAngle(-15);
+    	}
+    	
+    	if(oi.thumb.get())
+        	winch.controlWinch(-ahrs.getRoll());
+       	else
+       		winch.controlWinch(oi.flight.getRawAxis(1), -ahrs.getRoll());
+    	
+    	SmartDashboard.putNumber("Roll", ahrs.getRoll());
+    	SmartDashboard.putNumber("Yaw", ahrs.getYaw());
+    	SmartDashboard.putNumber("Pitch", ahrs.getPitch());
+    	shooter.log();
+    	driveTrain.log();
+    	
+		//System.out.println(oi.joy.getPOV());
+		//SmartDashboard.putNumber("POV Value", oi.joy.getPOV());
   }
     
     /**
