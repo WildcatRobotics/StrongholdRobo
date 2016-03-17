@@ -2,10 +2,12 @@
 package org.usfirst.frc.team6171.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.sun.nio.file.SensitivityWatchEventModifier;
 
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 
@@ -41,7 +43,7 @@ public class Robot extends IterativeRobot {
 	Drivetrain driveTrain;
 	Shooter shooter;
 	Winch winch;
-	AHRS ahrs;
+	public static AHRS ahrs;
 	CameraServer server;
 	
 	//double setpoint;
@@ -49,6 +51,8 @@ public class Robot extends IterativeRobot {
 	boolean driveA;
 	boolean isShooting, isStopping, isIntaking, push, pushed;
 	boolean locked, lockHelp;
+	
+	double sensitivity;
 	//these store the data from teleop for use in autonomous replay
 	//ArrayList<Double> repL, repR;
 	
@@ -59,13 +63,9 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
     	
     	oi = new OI();
-    	
     	time = new Timer();
-    	
     	driveTrain = new Drivetrain();
-    	
     	shooter = new Shooter();
-    	
     	winch = new Winch();
     	
     	try {
@@ -90,19 +90,23 @@ public class Robot extends IterativeRobot {
     }
     
     public void autonomousInit(){
-    	//time.reset();
-    	//time.start();
-    	//replayCounter = 0;
+//    	time.reset();
+//    	time.start();
+    	/*
+    	driveTrain.resetEncoders();
+    	ahrs.reset();
+    	driveTrain.setAngleSetPoint(180);
+    	driveTrain.setSetPoint(24);
+    	driveTrain.go();
+    	*/
+
     }
     
     /**
      * This function is called periodically during autonomous
     */ 
     public void autonomousPeriodic(){
-    	//if(isReplay == 1){
-    	//	driveT.drive.arcadeDrive(repL.get(replayCounter), repR.get(replayCounter));
-    	//	replayCounter++;
-    	//}    	
+//    	winch.changeAngle(-15);
     }
     
 
@@ -111,10 +115,11 @@ public class Robot extends IterativeRobot {
     	//repL.clear();
     	winch.setAngle(0);
     	driveA = false;
-    	tankDrive = false;
+    	tankDrive = true;
     	isShooting = isStopping = isIntaking = push = pushed = false;
 		pushed = false;
 		locked = lockHelp = false;
+		sensitivity = 1;
     }
     
     /**
@@ -127,27 +132,18 @@ public class Robot extends IterativeRobot {
     	//SmartDashboard.putData("Motor", rightFront);
     	//SmartDashboard.putData("Motor", rightRear);
     	//Double l, r;
-
-    	/*boolean boost = false;
-    	boolean boosted = false;
-    	if(boost && !oi.A.get())
-    	{
-    		boost = true;
-    		boosted = !boosted;
-    		if(boosted)
-    		{
-    			drive.setMaxOutput(.75);
-    		}
-    		else
-    			drive.setMaxOutput(.5);
-    	}
-    	if(oi.A.get())
-    		boost = true;*/
     	
 		if(oi.LB.get() && oi.RB.get())
-			driveTrain.drive.setMaxOutput(1);
+		{
+			//driveTrain.drive.setMaxOutput(Math.abs(oi.getSliderValue()-1));
+			sensitivity = .8;
+		}
 		else
+		{
 			driveTrain.drive.setMaxOutput(.5);
+			sensitivity = 1;
+		}
+			
     	
     	//Following code uses mode button to change from driving modes
 		//pauses thread for half a second to give user time to release button
@@ -176,7 +172,13 @@ public class Robot extends IterativeRobot {
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTY); // value added
     		   	
-    		driveTrain.drive.tankDrive(oi.getLeftY(), -oi.getRightY()*.9);
+    		driveTrain.drive.tankDrive(oi.getLeftY()*sensitivity, oi.getRightY()*sensitivity);
+			//driveTrain.drive.tankDrive(0,0);
+			
+//			driveTrain.leftFront.set(0);
+//			driveTrain.leftRear.set(0);
+//			driveTrain.rightFront.set(0);
+//			driveTrain.rightRear.set(0);
     		//repL.add(l);
     		//repR.add(r);
     	}
@@ -185,7 +187,7 @@ public class Robot extends IterativeRobot {
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
     		   	
-    		driveTrain.drive.arcadeDrive(-oi.getRightX(), -oi.getLeftY());
+    		driveTrain.drive.arcadeDrive(oi.getLeftY()*sensitivity, oi.getRightX()*sensitivity);
     		
     		//repL.add(l);
     		//repR.add(r);
@@ -239,7 +241,7 @@ public class Robot extends IterativeRobot {
     	if(oi.trigger.get())
     		push = true;
     	
-    	/*
+    	
     	if(oi.joy.getPOV()==0)
     	{
     		winch.changeAngle(.5);
@@ -248,23 +250,26 @@ public class Robot extends IterativeRobot {
     	{
     		winch.changeAngle(-.5);
     	}
-    	*/
+    	
     	//winch.controlWinch(-ahrs.getPitch());
     	
 //    	if(winchUp)
 //    		winch.controlWinch(oi.joy.getRawAxis(3), ahrs.getRoll());
 //    	else
+    	
+    	//this mapping sucks major ass!!!!! <---  ***** !!!!!
+    	
     	if(oi.b9.get())
     		winch.setAngle(25);
     	if(oi.b7.get())
-    		winch.setAngle(50);
+    		winch.setAngle(42);
     	if(oi.b8.get())
     		winch.setAngle(55);
     	if(oi.b11.get())
     		winch.setAngle(0);
-    	if(oi.b10.get()){
-    		winch.setAngle(-15);
-    	}
+    	if(oi.b10.get())
+    		winch.setAngle(-10);
+    	
     	
     	if(oi.thumb.get())
         	winch.controlWinch(-ahrs.getRoll());
@@ -274,6 +279,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Roll", ahrs.getRoll());
     	SmartDashboard.putNumber("Yaw", ahrs.getYaw());
     	SmartDashboard.putNumber("Pitch", ahrs.getPitch());
+    	SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
     	shooter.log();
     	driveTrain.log();
     	

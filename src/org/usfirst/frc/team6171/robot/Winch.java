@@ -41,12 +41,8 @@ public class Winch {
 			//	output = 0;
 			output = Math.max(-.2, Math.min(.3, tempOutput));
 			//if(limitSwitch.get())
-			//{
 				//output = -.4;
-			//}
-			winch.set(output);
-		// }
-		
+			winch.set(output);	
 	 }
 	 
 	 public void controlWinch(double joyInput, double angle){

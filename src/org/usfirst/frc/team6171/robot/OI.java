@@ -4,23 +4,25 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 public class OI {
-//	 use for xbox controller
+//	 XBOX Buttons
 	public static final int LEFTX = 0;
 	public static final int LEFTY = 1;
 	//public static final int RTRIGGER = 3;
 	//public static final int LTRIGGER = 2;
 	public static final int RIGHTX = 4;
 	public static final int RIGHTY = 5;
+	JoystickButton X, A, B, Y, LB, RB, back, start, leftJoy, rightJoy;
 	
+//	Flight Stick Buttons
 	public static final int YAXIS = 1;
 	public static final int SLIDER = 3;
-	Joystick joy, flight;
-	JoystickButton X, A, B, Y, LB, RB, back, start, leftJoy, rightJoy;
-	JoystickButton trigger, thumb, leftSmall, leftBig, rightSmall, rightBig, b7, b8, b9, b10, b11, b12;
+	JoystickButton trigger, thumb, leftSmall, leftBig, rightSmall, rightBig, b7, b8, b9, b10, b11, b12;	
 	
+	Joystick joy, flight;
+
 	public OI(){
-		joy = new Joystick(0);
-		//buttons
+//		XBOX
+		joy = new Joystick(1);
 		A = new JoystickButton(joy, 1);
 		B = new JoystickButton(joy, 2);
 		X = new JoystickButton(joy, 3);
@@ -31,8 +33,8 @@ public class OI {
 		start = new JoystickButton(joy, 8);
 		leftJoy = new JoystickButton(joy, 9);
 		rightJoy = new JoystickButton(joy, 10);
-		
-		flight = new Joystick(1);
+//		FlightStick
+		flight = new Joystick(0);
 		trigger = new JoystickButton(flight, 1);
 		thumb = new JoystickButton(flight, 2);
 		leftBig = new JoystickButton(flight, 3);
@@ -45,10 +47,8 @@ public class OI {
 		b10 = new JoystickButton(flight, 10);
 		b11 = new JoystickButton(flight, 11);
 		b12 = new JoystickButton(flight, 12);
-		
-		
-		//mode = new JoystickButton(joy, 0); //need to calibrate to correct button. 
 	}
+	
 	public double getLeftY()
 	{
 		return joy.getRawAxis(LEFTY);
@@ -69,7 +69,7 @@ public class OI {
 	{
 		return flight.getRawAxis(YAXIS);
 	}
-	public double getDesiredAngle()
+	public double getSliderValue()
 	{
 		return flight.getRawAxis(SLIDER);
 	}

@@ -10,5 +10,5 @@ public class RobotMap {
 	//public static final int KrightVic = 5;
 	public static final int KLeftTalon = 1;
 	public static final int KRightTalon = 3;
-	public static final int KWinch = 2;
+	public static final int KWinch = 2; 
 }
