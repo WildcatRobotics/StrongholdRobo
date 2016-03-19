@@ -7,8 +7,8 @@ public class OI {
 //	 XBOX Buttons
 	public static final int LEFTX = 0;
 	public static final int LEFTY = 1;
-	//public static final int RTRIGGER = 3;
-	//public static final int LTRIGGER = 2;
+	public static final int RTRIGGER = 3;
+	public static final int LTRIGGER = 2;
 	public static final int RIGHTX = 4;
 	public static final int RIGHTY = 5;
 	JoystickButton X, A, B, Y, LB, RB, back, start, leftJoy, rightJoy;
@@ -64,6 +64,14 @@ public class OI {
 	public double getRightX()
 	{
 		return joy.getRawAxis(RIGHTX);
+	}
+	public double getRightTrigger()
+	{
+		return joy.getRawAxis(RTRIGGER);
+	}
+	public double getLeftTrigger()
+	{
+		return joy.getRawAxis(LTRIGGER);
 	}
 	public double getFlightY()
 	{

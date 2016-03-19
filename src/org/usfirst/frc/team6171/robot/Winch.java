@@ -12,7 +12,7 @@ public class Winch {
 	double setpoint;
 	DigitalInput limitSwitch;
 	
-	public static double WinchKp = .03;
+	public static double WinchKp = .035;
 	
 	public Winch(){
 		winch = new CANTalon(RobotMap.KWinch);
@@ -48,10 +48,10 @@ public class Winch {
 	 public void controlWinch(double joyInput, double angle){
 		// if(!limitSwitch.get()){
 			 SmartDashboard.putNumber("joyInput", joyInput);
-			 if(angle>55)
-				 winch.set(.2);
+			 if(angle>57)
+				 winch.set(0);
 			 else if(angle<-20)
-			 	winch.set(-.2);
+			 	winch.set(-.1);
 			 else
 			 {
 				 if(angle<-10)
