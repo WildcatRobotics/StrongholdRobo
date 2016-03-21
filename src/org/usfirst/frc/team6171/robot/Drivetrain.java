@@ -72,16 +72,24 @@ public class Drivetrain {
 	
 	public void setAngleSetPoint(double angle)
 	{
-		pid.setSetpoint(angle);
+		pidOut.setAngle(angle);
 	}
 	public void go()
 	{
-		while(leftEnc.getDistance()<setPoint && rightEnc.getDistance()<setPoint)
+		pid.enable();
+		pid.setSetpoint(setPoint);
+		SmartDashboard.putNumber("Left Enc", leftEnc.getDistance());
+		SmartDashboard.putNumber("Right Enc", rightEnc.getDistance());
+		SmartDashboard.putNumber("Yaw", Robot.ahrs.getYaw());
+		while(!pid.onTarget())
 		{
-			drive.drive(.3, 0.0);
+			//drive.drive(.3, 0.0);
 			setAngle(Robot.ahrs.getYaw() * .1);
+			SmartDashboard.putNumber("Left Enc", leftEnc.getDistance());
+			SmartDashboard.putNumber("Right Enc", rightEnc.getDistance());
+			SmartDashboard.putNumber("Yaw", Robot.ahrs.getYaw());
 		}
-		drive.drive(0, 0);
+		pid.disable();
 
 	}
 	
@@ -103,7 +111,7 @@ public class Drivetrain {
 		}
 		
 		public void pidWrite(double output) {
-			drive.arcadeDrive(output+.3, angle);
+			drive.arcadeDrive(output+.1, angle);
 		}
 		
 	}

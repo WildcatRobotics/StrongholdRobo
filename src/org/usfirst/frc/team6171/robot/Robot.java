@@ -95,13 +95,13 @@ public class Robot extends IterativeRobot {
     public void autonomousInit(){
 //    	time.reset();
 //    	time.start();
-    	/*
+    	
     	driveTrain.resetEncoders();
     	ahrs.reset();
-    	driveTrain.setAngleSetPoint(180);
-    	driveTrain.setSetPoint(24);
+    	driveTrain.setAngleSetPoint(270);
+    	driveTrain.setSetPoint(100);
     	driveTrain.go();
-    	*/
+    	
     	
 
     }
