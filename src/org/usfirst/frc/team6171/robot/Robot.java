@@ -2,28 +2,17 @@
 package org.usfirst.frc.team6171.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.sun.nio.file.SensitivityWatchEventModifier;
 
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 
 //import javax.swing.JOptionPane;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.NamedSendable;
-import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.VictorSP;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -44,17 +33,22 @@ public class Robot extends IterativeRobot {
 	Drivetrain driveTrain;
 	Shooter shooter;
 	Winch winch;
+	SendableChooser chooser;
 	public static AHRS ahrs;
 	CameraServer server;
 	NetworkTable network;
 	
-	//double setpoint;
-	boolean tankDrive; // used to see if mode button is clicked
-	boolean driveA;
-	boolean isShooting, isStopping, isIntaking, push, pushed;
-	boolean locked, lockHelp;
+	final String lowShoot = "Low Shoot";
+	final String obstacle = "Obstacle";
+	final String lowBar = "Low Bar";
 	
-	double sensitivity, yVal, calculatedAngle, xVal;
+	boolean tankDrive; // used to see if mode button is clicked
+	boolean driveModeHelper;
+	boolean isShooting, isStopping, isIntaking, push, pushed;
+	
+	double sensitivity, yVal, calculatedAngle, xVal, calculatedAngle2;
+	
+	String autoSelected;
 	//these store the data from teleop for use in autonomous replay
 	//ArrayList<Double> repL, repR;
 	
@@ -64,11 +58,17 @@ public class Robot extends IterativeRobot {
 	
     public void robotInit() {
     	
-    	oi = new OI();
     	time = new Timer();
     	driveTrain = new Drivetrain();
     	shooter = new Shooter();
     	winch = new Winch();
+    	oi = new OI();
+    	
+    	chooser = new SendableChooser();
+    	chooser.addDefault("Low Bar and Shoot", lowShoot);
+    	chooser.addObject("Obstacle", obstacle);
+    	chooser.addObject("Low Bar Only", lowBar);
+    	SmartDashboard.putData("Autonomous Chooser", chooser);
     	
     	try {
 	          ahrs = new AHRS(SPI.Port.kMXP); 
@@ -85,11 +85,10 @@ public class Robot extends IterativeRobot {
     	//repL = new ArrayList<Double>();
     	//repR = new ArrayList<Double>();
     	//replayCounter = 0;
-    	driveA = false;
+    	driveModeHelper = false;
     	tankDrive = false;
     	isShooting = isStopping = isIntaking = push = pushed = false;
 		pushed = false;
-		locked = lockHelp = false;
     }
     
     public void autonomousInit(){
@@ -98,27 +97,60 @@ public class Robot extends IterativeRobot {
     	
     	driveTrain.resetEncoders();
     	ahrs.reset();
-    	driveTrain.setAngleSetPoint(270);
-    	driveTrain.setSetPoint(100);
-    	driveTrain.go();
-    	
-    	
-
+    	String autoSelected = (String) chooser.getSelected();
+    	//driveTrain.setDistanceSetpoint(150);
+    	//driveTrain.pidEnable();
+    	//driveTrain.setAngleSetpoint(180);
+    	switch(autoSelected){
+    	case lowShoot:
+    
+    		break;
+    	case obstacle:
+    		
+    		break;
+    	case lowBar:
+    		driveTrain.setDistanceSetpoint(-150);
+    		driveTrain.pidEnable();
+    		break;
+    	}
     }
     
     /**
      * This function is called periodically during autonomous
     */ 
     public void autonomousPeriodic(){
+    	/*
+    	driveTrain.driveDistance();
 //    	winch.changeAngle(-15);
     	try{
-    		double[] points = network.getNumberArray("BFR_COORDINATES");
+    		@SuppressWarnings("deprecation")
+			double[] points = network.getNumberArray("BFR_COORDINATES");
     		yVal = (points[1]+points[3]+points[5]+points[7])/4;
     		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034;
+    		calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
     	}
     	catch(Exception e){};
     	SmartDashboard.putNumber("Y Value", yVal);
     	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
+    	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
+    	*/
+    	String autoSelected = (String) chooser.getSelected();
+    	switch(autoSelected){
+    	case lowShoot:
+    
+    		break;
+    	case obstacle:
+    		
+    		break;
+    	case lowBar:
+    		driveTrain.driveDistance();
+    		break;
+    	}
+    	/*
+    	if(!driveTrain.getTurnDone()){
+    		driveTrain.turnToAngle();
+    	}
+    	*/
     }
     
 
@@ -126,20 +158,21 @@ public class Robot extends IterativeRobot {
     	//repR.clear();
     	//repL.clear();
     	winch.setAngle(0);
-    	driveA = false;
+    	driveModeHelper = false;
     	tankDrive = true;
     	isShooting = isStopping = isIntaking = push = pushed = false;
 		pushed = false;
-		locked = lockHelp = false;
 		sensitivity = 1;
 		yVal = 0;
 		xVal = 0;
+		driveTrain.pidDisable();
     }
     
     /**
      * This function is called periodically during operator control
      */
-    public void teleopPeriodic() {
+    @SuppressWarnings("deprecation")
+	public void teleopPeriodic() {
     	//SmartDashboard.putNumber("Joystick", oi.joy.getRawAxis(1));
     	//SmartDashboard.putData("Motor", leftFront);
     	//SmartDashboard.putData("Motor", leftRear);
@@ -154,23 +187,23 @@ public class Robot extends IterativeRobot {
     	try{
     		double[] points = network.getNumberArray("BFR_COORDINATES");
     		yVal = (points[1]+points[3]+points[5]+points[7])/4;
-    		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034;
+    		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034  - 1;
+    		calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
     	}
     	catch(Exception e){};
     	try{
     		double[] points = network.getNumberArray("BFR_COORDINATES");
-    		xVal = (points[0]+points[2]+points[4]+points[6])/4;
-    		
+    		xVal = (points[0]+points[2]+points[4]+points[6])/4;	
     	}
     	catch(Exception e){};
     	SmartDashboard.putNumber("Y Value", yVal);
     	SmartDashboard.putNumber("X Value", xVal);
     	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
+    	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
     	
     	if(oi.A.get())
 		{
-    		
-    		int setTarget = 150; 
+    		int setTarget = 131; 
 			double tempOutput = 0;
 			double output = 0;
 			if(Math.abs(setTarget - xVal) > 15){
@@ -207,7 +240,8 @@ public class Robot extends IterativeRobot {
     		else if(149 - xVal<-1)
     			output = .4;
     		*/
-			driveTrain.drive.arcadeDrive(0,0);
+			//THE FUCK?
+			//driveTrain.drive.arcadeDrive(0,0);
 			driveTrain.drive.arcadeDrive(0, output);
 		}
     	
@@ -235,20 +269,13 @@ public class Robot extends IterativeRobot {
     	//	Timer.delay(.5);
     	//}
 		
-    	if(driveA && !oi.back.get())
+    	if(driveModeHelper && !oi.back.get())
     	{
-    		driveA = false;
+    		driveModeHelper = false;
     		tankDrive = !tankDrive;
     	}
     	if(oi.back.get())
-    		driveA = true;
-    	
-    	if(lockHelp && !oi.b12.get()){
-    		lockHelp = false;
-    		locked = !locked; 
-    	}
-    	if(oi.b12.get())
-    		lockHelp = true;
+    		driveModeHelper = true;
 
 		if(!oi.A.get() && tankDrive)
     	{
@@ -256,12 +283,8 @@ public class Robot extends IterativeRobot {
     		//r = oi.joy.getRawAxis(OI.RIGHTY); // value added
     		   	
     		driveTrain.drive.tankDrive(oi.getLeftY()*sensitivity, oi.getRightY()*sensitivity);
+    		
 			//driveTrain.drive.tankDrive(0,0);
-			
-//			driveTrain.leftFront.set(0);
-//			driveTrain.leftRear.set(0);
-//			driveTrain.rightFront.set(0);
-//			driveTrain.rightRear.set(0);
     		//repL.add(l);
     		//repR.add(r);
     	}
@@ -275,10 +298,7 @@ public class Robot extends IterativeRobot {
     		//repL.add(l);
     		//repR.add(r);
     	}
-		/*if(oi.Y.get())
-			test.set(1);
-		else
-			test.set(0);*/
+
 		if(oi.leftSmall.get())
     	{
     		isShooting = false;
@@ -294,7 +314,7 @@ public class Robot extends IterativeRobot {
     		isShooting = false;
     		isIntaking = false;
     	}
-    	
+   
     	if(isShooting)
     	{
     		shooter.spinUp();
@@ -334,12 +354,6 @@ public class Robot extends IterativeRobot {
     		winch.changeAngle(-.5);
     	}
     	
-    	//winch.controlWinch(-ahrs.getPitch());
-    	
-//    	if(winchUp)
-//    		winch.controlWinch(oi.joy.getRawAxis(3), ahrs.getRoll());
-//    	else
-    	
     	//this mapping sucks major ass!!!!! <---  ***** !!!!!
     	if(oi.rightBig.get())
     		winch.setAngle(calculatedAngle-2);
@@ -354,7 +368,6 @@ public class Robot extends IterativeRobot {
     	if(oi.b10.get())
     		winch.setAngle(-15);
     	
-    	
     	if(oi.thumb.get())
         	winch.controlWinch(-ahrs.getRoll());
        	else
@@ -366,9 +379,6 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
     	shooter.log();
     	driveTrain.log();
-    	
-		//System.out.println(oi.joy.getPOV());
-		//SmartDashboard.putNumber("POV Value", oi.joy.getPOV());
   }
     
     /**

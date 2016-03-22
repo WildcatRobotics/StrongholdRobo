@@ -22,7 +22,7 @@ public class Shooter {
 	public static final double Kp = .1;
     public static final double Ki = .001;
     public static final double Kd = .01;
-	//-20
+
 	public Shooter(){
 		leftTalon = new CANTalon(RobotMap.KLeftTalon);
         rightTalon = new CANTalon(RobotMap.KRightTalon);

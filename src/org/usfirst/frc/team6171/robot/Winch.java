@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 public class Winch {
 	CANTalon winch;
 	double setpoint;
-	DigitalInput limitSwitch;
 	
 	public static double WinchKp = .035;
 	
@@ -18,12 +17,10 @@ public class Winch {
 		winch = new CANTalon(RobotMap.KWinch);
 		winch.changeControlMode(TalonControlMode.PercentVbus);
 		setpoint = 0;
-		//limitSwitch = new DigitalInput(4);
 		//Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
 	 
 	 public void controlWinch(double roll) {
-		 //if(!limitSwitch.get()){
 			 //WinchKp = Math.abs(roll)<30 ? .04 : .02;
 			double tempOutput = 0;
 			double output = 0;
@@ -60,13 +57,6 @@ public class Winch {
 					 winch.set(-joyInput*.2);
 			 }
 		// } 
-	 }
-	 
-	 public void lockWinch(){
-		 //if(limitSwitch.get())
-			// winch.set(0);
-		 //else
-			// winch.set(.2);
 	 }
 	 
 	 public void changeAngle(double angle){

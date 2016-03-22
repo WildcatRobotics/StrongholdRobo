@@ -14,10 +14,13 @@ public class Drivetrain {
 	public VictorSP leftFront, leftRear, rightFront, rightRear;
 	public RobotDrive drive;
 	public Encoder leftEnc, rightEnc;
+	
 	PIDController pid;
     DriveOutput pidOut;
     
-    double setPoint;
+    double distanceSetpoint, angleSetpoint;
+    
+    private boolean turnDone;
 	
 	public static final double Kp = .5;
     public static final double Ki = .005;
@@ -29,7 +32,7 @@ public class Drivetrain {
 		rightFront = new VictorSP(2);
 		rightRear = new VictorSP(3);
 		
-		leftEnc = new Encoder(0, 1, false, EncodingType.k4X);
+		leftEnc = new Encoder(0, 1, true, EncodingType.k4X);
 		rightEnc = new Encoder(2, 3, false, EncodingType.k4X);
 		leftEnc.setDistancePerPulse(.08726646);
         rightEnc.setDistancePerPulse(.08726646);
@@ -46,10 +49,10 @@ public class Drivetrain {
         
         pidOut = new DriveOutput();
         pid = new PIDController(Kp, Ki, Kd, leftEnc, pidOut);
-        pid.setOutputRange(-.4, .4);
+        pid.setOutputRange(-.6, .6);
         pid.setPercentTolerance(5);
-        
-        setPoint = 90;
+        pid.setContinuous();
+        turnDone = false;
 	}
 
 	public void resetEncoders()
@@ -58,38 +61,56 @@ public class Drivetrain {
     	rightEnc.reset();
 	}
 	
-	public void setSetPoint(double setPoint)
-	{
-		this.setPoint = setPoint;
+	public void setOutput(double out){
+		pid.setOutputRange(out, out);
 	}
 	
-	public void setAngle(double angle)
+	public void setDistanceSetpoint(double setPoint)
 	{
-		pidOut.setAngle(angle);
-    	if(pid.onTarget())
-    		pid.disable();
+		this.distanceSetpoint = setPoint;
+		pid.setSetpoint(distanceSetpoint);
 	}
 	
-	public void setAngleSetPoint(double angle)
-	{
-		pidOut.setAngle(angle);
-	}
-	public void go()
-	{
+	public void pidEnable(){
 		pid.enable();
-		pid.setSetpoint(setPoint);
+	}
+	public void pidDisable(){
+		pid.disable();
+	}
+	
+	public void setAngleSetpoint(double a){
+		angleSetpoint = a;
+	}
+	
+	public boolean getTurnDone(){
+		return turnDone;
+	}
+	
+	public void turnToAngle(){
+		double temp = Robot.ahrs.getYaw() - angleSetpoint;
+		System.out.println(temp);
+		double output = temp * .02;
+		output = Math.max(-.8,Math.min(.8,output));
+		System.out.println(output);
+		drive.arcadeDrive(0,-output);
+		if(Math.abs(temp)<5)
+			turnDone = true;
+	}
+	
+	public void driveDistance()
+	{
 		SmartDashboard.putNumber("Left Enc", leftEnc.getDistance());
 		SmartDashboard.putNumber("Right Enc", rightEnc.getDistance());
 		SmartDashboard.putNumber("Yaw", Robot.ahrs.getYaw());
-		while(!pid.onTarget())
-		{
+		//while(!pid.onTarget())
+		//{
 			//drive.drive(.3, 0.0);
-			setAngle(Robot.ahrs.getYaw() * .1);
-			SmartDashboard.putNumber("Left Enc", leftEnc.getDistance());
-			SmartDashboard.putNumber("Right Enc", rightEnc.getDistance());
-			SmartDashboard.putNumber("Yaw", Robot.ahrs.getYaw());
-		}
-		pid.disable();
+		//	setAngle(Robot.ahrs.getYaw() * .1);
+		//}
+		//pid.disable();
+		pidOut.setAngle(-Robot.ahrs.getYaw() * .2);
+	    	if(pid.onTarget())
+	    		pid.disable();
 
 	}
 	
@@ -98,6 +119,8 @@ public class Drivetrain {
 	public void log(){
 		SmartDashboard.putNumber("Left Speed", leftEnc.getRate());
 		SmartDashboard.putNumber("Right Speed", rightEnc.getRate());
+		SmartDashboard.putNumber("Left Distance", leftEnc.getDistance());
+		SmartDashboard.putNumber("Right Distance", rightEnc.getDistance());
 	}
 	private class DriveOutput implements PIDOutput {
 		double angle;
@@ -107,13 +130,14 @@ public class Drivetrain {
 		}
 		public void setAngle(double angle)
 		{
-			this.angle = angle;
+			this.angle = Math.max(-.3,Math.min(.3,angle));
 		}
 		
 		public void pidWrite(double output) {
-			drive.arcadeDrive(output+.1, angle);
+			System.out.println(output);
+			System.out.println(angle);
+			drive.arcadeDrive(-output, angle);
 		}
-		
 	}
 }
 
