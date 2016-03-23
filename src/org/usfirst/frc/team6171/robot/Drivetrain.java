@@ -50,7 +50,8 @@ public class Drivetrain {
         pidOut = new DriveOutput();
         pid = new PIDController(Kp, Ki, Kd, leftEnc, pidOut);
         pid.setOutputRange(-.6, .6);
-        pid.setPercentTolerance(5);
+        //pid.setInputRange(-255, 5);
+        pid.setPercentTolerance(10);
         pid.setContinuous();
         turnDone = false;
 	}
@@ -85,22 +86,28 @@ public class Drivetrain {
 	public boolean getTurnDone(){
 		return turnDone;
 	}
+	public void setTurnDone(boolean b){
+		turnDone = b;
+	}
+	
+	public boolean getDistanceDone(){
+		return !pid.isEnabled();
+	}
 	
 	public void turnToAngle(){
 		double temp = Robot.ahrs.getYaw() - angleSetpoint;
-		System.out.println(temp);
-		double output = temp * .02;
+		//System.out.println(temp);
+		double output = temp * .08;
 		output = Math.max(-.8,Math.min(.8,output));
-		System.out.println(output);
+		//System.out.println(output);
 		drive.arcadeDrive(0,-output);
 		if(Math.abs(temp)<5)
 			turnDone = true;
 	}
 	
-	public void driveDistance()
+	public void driveDistanceForwards()
 	{
-		SmartDashboard.putNumber("Left Enc", leftEnc.getDistance());
-		SmartDashboard.putNumber("Right Enc", rightEnc.getDistance());
+		log();
 		SmartDashboard.putNumber("Yaw", Robot.ahrs.getYaw());
 		//while(!pid.onTarget())
 		//{
@@ -109,6 +116,21 @@ public class Drivetrain {
 		//}
 		//pid.disable();
 		pidOut.setAngle(-Robot.ahrs.getYaw() * .2);
+	    	if(pid.onTarget())
+	    		pid.disable();
+
+	}
+	public void driveDistanceBackwards()
+	{
+		log();
+		SmartDashboard.putNumber("Yaw", Robot.ahrs.getYaw());
+		//while(!pid.onTarget())
+		//{
+			//drive.drive(.3, 0.0);
+		//	setAngle(Robot.ahrs.getYaw() * .1);
+		//}
+		//pid.disable();
+		pidOut.setAngle(Robot.ahrs.getYaw() * .2);
 	    	if(pid.onTarget())
 	    		pid.disable();
 
@@ -134,8 +156,6 @@ public class Drivetrain {
 		}
 		
 		public void pidWrite(double output) {
-			System.out.println(output);
-			System.out.println(angle);
 			drive.arcadeDrive(-output, angle);
 		}
 	}

@@ -48,6 +48,8 @@ public class Robot extends IterativeRobot {
 	
 	double sensitivity, yVal, calculatedAngle, xVal, calculatedAngle2;
 	
+	int step;
+	
 	String autoSelected;
 	//these store the data from teleop for use in autonomous replay
 	//ArrayList<Double> repL, repR;
@@ -75,12 +77,15 @@ public class Robot extends IterativeRobot {
 	      } catch (RuntimeException ex ) {
 	          DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
 	      }
-    	
+    	/*
+    	try{
     	server = CameraServer.getInstance();
         server.setQuality(50);
         //the camera name (ex "cam0") can be found through the roborio web interface
         server.startAutomaticCapture("cam0");
-        
+    	}
+    	catch(Exception e){}
+        */
         network = NetworkTable.getTable("SmartDashboard");
     	//repL = new ArrayList<Double>();
     	//repR = new ArrayList<Double>();
@@ -101,6 +106,7 @@ public class Robot extends IterativeRobot {
     	//driveTrain.setDistanceSetpoint(150);
     	//driveTrain.pidEnable();
     	//driveTrain.setAngleSetpoint(180);
+    	step = 1;
     	switch(autoSelected){
     	case lowShoot:
     
@@ -109,7 +115,7 @@ public class Robot extends IterativeRobot {
     		
     		break;
     	case lowBar:
-    		driveTrain.setDistanceSetpoint(-150);
+    		driveTrain.setDistanceSetpoint(-165);
     		driveTrain.pidEnable();
     		break;
     	}
@@ -143,7 +149,90 @@ public class Robot extends IterativeRobot {
     		
     		break;
     	case lowBar:
-    		driveTrain.driveDistance();
+    		if(step==1){
+    			System.out.println("Step 1");
+    			driveTrain.driveDistanceForwards();
+    			if(driveTrain.leftEnc.getDistance()<-165)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(35);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		if(step==2){
+    			System.out.println("Step 2");
+    			driveTrain.turnToAngle();
+    			System.out.println(ahrs.getYaw());
+    			System.out.println(driveTrain.pid.isEnabled());
+    			if(driveTrain.getTurnDone())
+    			{
+    				step++;
+    				driveTrain.resetEncoders();
+    				ahrs.reset();
+    				driveTrain.setDistanceSetpoint(-30);
+    				driveTrain.pidEnable();
+    				
+    			}
+    		}
+    		if(step==3)
+    		{
+    			System.out.println("Step 3");
+    			driveTrain.driveDistanceForwards();
+    			if(driveTrain.leftEnc.getDistance()<-30)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(-155);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		if(step==4){
+    			System.out.println(driveTrain.pid.isEnabled());
+    			System.out.println(ahrs.getYaw());
+    			System.out.println("Step 45");
+    			driveTrain.turnToAngle();
+    			if(driveTrain.getTurnDone())
+    			{
+    				step++;
+    				ahrs.reset();
+    				driveTrain.resetEncoders();
+    				driveTrain.setDistanceSetpoint(15);
+    				driveTrain.pidEnable();
+    			}
+    		}
+    		if(step==5)
+    		{
+    			System.out.println("Step 5");
+    			driveTrain.driveDistanceForwards();
+    			if(driveTrain.leftEnc.getDistance()>15)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(0);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		if(step==6)
+    		{
+    			System.out.println("Step 6");
+    			try{
+    	    		@SuppressWarnings("deprecation")
+    				double[] points = network.getNumberArray("BFR_COORDINATES");
+    	    		yVal = (points[1]+points[3]+points[5]+points[7])/4;
+    	    		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034;
+    	    		calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
+    	    	}
+    	    	catch(Exception e){};
+    	    	SmartDashboard.putNumber("Y Value", yVal);
+    	    	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
+    	    	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
+    			winch.setAngle(calculatedAngle2);
+    			winch.controlWinch(-ahrs.getRoll());
+    		}
+    		}
     		break;
     	}
     	/*
@@ -159,7 +248,7 @@ public class Robot extends IterativeRobot {
     	//repL.clear();
     	winch.setAngle(0);
     	driveModeHelper = false;
-    	tankDrive = true;
+    	tankDrive = false;
     	isShooting = isStopping = isIntaking = push = pushed = false;
 		pushed = false;
 		sensitivity = 1;
