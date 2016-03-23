@@ -94,11 +94,14 @@ public class Robot extends IterativeRobot {
     	tankDrive = false;
     	isShooting = isStopping = isIntaking = push = pushed = false;
 		pushed = false;
+		
+		xVal = 0;
+		yVal = 0;
     }
     
     public void autonomousInit(){
-//    	time.reset();
-//    	time.start();
+    	time.reset();
+    	time.start();
     	
     	driveTrain.resetEncoders();
     	ahrs.reset();
@@ -215,6 +218,7 @@ public class Robot extends IterativeRobot {
     				driveTrain.pidDisable();
     				driveTrain.setTurnDone(false);
     			}
+    		}
     		if(step==6)
     		{
     			System.out.println("Step 6");
@@ -226,14 +230,55 @@ public class Robot extends IterativeRobot {
     	    		calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
     	    	}
     	    	catch(Exception e){};
+    	    	
     	    	SmartDashboard.putNumber("Y Value", yVal);
     	    	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
     	    	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
     			winch.setAngle(calculatedAngle2);
     			winch.controlWinch(-ahrs.getRoll());
+    			int setTarget = 131; 
+    			try{
+    	    		double[] points = network.getNumberArray("BFR_COORDINATES");
+    	    		xVal = (points[0]+points[2]+points[4]+points[6])/4;	
+    	    		if((time.get()/100 %1)%8<6)
+        	    	{
+    	    	    	
+    	    			double tempOutput = 0;
+    	    			double output = 0;
+    	    			if(Math.abs(setTarget - xVal) > 15){
+    	    				tempOutput = -(setTarget - xVal)*.09;
+    	    			}
+    	    			else if(Math.abs(setTarget - xVal) > 1){
+    	    				tempOutput = -(setTarget - xVal)*.1;
+    	    			}
+    	    			
+    	    			output = Math.max(-.75, Math.min(.75, tempOutput));
+    	    			driveTrain.drive.arcadeDrive(0, output);
+        	    	}
+        	    	else
+        	    	{
+        	    		driveTrain.drive.arcadeDrive(0, 0);
+        	    	}
+    	    	}
+    	    	catch(Exception e){
+    	    		
+    	    	};
+    	    	
+    	    	
+    	    	if(Math.abs(xVal-setTarget)<2)
+    	    	{
+    	    		step++;
+    	    	}
     		}
-    		}
+    		
     		break;
+    	}
+    	
+    	if(step==7)
+    	{
+    		shooter.spinUp();
+    		if(time.get()>13.5)
+    			shooter.shoot();
     	}
     	/*
     	if(!driveTrain.getTurnDone()){
