@@ -43,6 +43,7 @@ public class Drivetrain {
         leftEnc.setPIDSourceType(PIDSourceType.kDisplacement);
         rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
 		drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
+		drive.setInvertedMotor(MotorType.kFrontRight, true);
 		drive.setInvertedMotor(MotorType.kRearRight, true);
         drive.setInvertedMotor(MotorType.kFrontLeft, true);
         drive.setInvertedMotor(MotorType.kRearLeft, true);
@@ -92,6 +93,10 @@ public class Drivetrain {
 	
 	public boolean getDistanceDone(){
 		return !pid.isEnabled();
+	}
+	public void setOutputRange(double a, double b)
+	{
+		pid.setOutputRange(a, b);
 	}
 	
 	public void turnToAngle(){

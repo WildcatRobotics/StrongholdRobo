@@ -29,7 +29,7 @@ public class Shooter {
 		
 //      Calibration for right talon motor
 		rightTalon.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
-        rightTalon.reverseSensor(true);
+        rightTalon.reverseSensor(false);
         rightTalon.configNominalOutputVoltage(0.0, 0.0);
         rightTalon.configPeakOutputVoltage(12.0, -12.0);
         rightTalon.setProfile(0);
@@ -40,7 +40,7 @@ public class Shooter {
         
 //        Calibration for left talon motor
         leftTalon.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
-        leftTalon.reverseSensor(false);
+        leftTalon.reverseSensor(true);
         leftTalon.configNominalOutputVoltage(0.0, 0.0);
         leftTalon.configPeakOutputVoltage(12.0, -12.0);
         leftTalon.setProfile(0);

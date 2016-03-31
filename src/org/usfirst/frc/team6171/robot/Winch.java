@@ -34,11 +34,7 @@ public class Winch {
 					winch.set(0);*/
 				tempOutput = -(setpoint - roll)*WinchKp;
 			}
-			//else
-			//	output = 0;
 			output = Math.max(-.2, Math.min(.3, tempOutput));
-			//if(limitSwitch.get())
-				//output = -.4;
 			winch.set(output);	
 	 }
 	 

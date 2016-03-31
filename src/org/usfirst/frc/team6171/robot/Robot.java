@@ -77,7 +77,7 @@ public class Robot extends IterativeRobot {
 	      } catch (RuntimeException ex ) {
 	          DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
 	      }
-    	/*
+    	
     	try{
     	server = CameraServer.getInstance();
         server.setQuality(50);
@@ -85,7 +85,7 @@ public class Robot extends IterativeRobot {
         server.startAutomaticCapture("cam0");
     	}
     	catch(Exception e){}
-        */
+        
         network = NetworkTable.getTable("SmartDashboard");
     	//repL = new ArrayList<Double>();
     	//repR = new ArrayList<Double>();
@@ -100,6 +100,7 @@ public class Robot extends IterativeRobot {
     }
     
     public void autonomousInit(){
+    	
     	time.reset();
     	time.start();
     	
@@ -115,13 +116,19 @@ public class Robot extends IterativeRobot {
     
     		break;
     	case obstacle:
+    		winch.setAngle(15);
+    		driveTrain.setDistanceSetpoint(-150);
+    		driveTrain.setOutputRange(-.9, .9);
+    		driveTrain.pidEnable();
     		
     		break;
     	case lowBar:
-    		driveTrain.setDistanceSetpoint(-165);
+    		driveTrain.setOutputRange(-.6, .6);
+    		driveTrain.setDistanceSetpoint(-173);
     		driveTrain.pidEnable();
     		break;
     	}
+    	
     }
     
     /**
@@ -143,19 +150,18 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
     	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
     	*/
+    	
     	String autoSelected = (String) chooser.getSelected();
     	switch(autoSelected){
     	case lowShoot:
     
     		break;
     	case obstacle:
-    		
-    		break;
-    	case lowBar:
     		if(step==1){
     			System.out.println("Step 1");
     			driveTrain.driveDistanceForwards();
-    			if(driveTrain.leftEnc.getDistance()<-165)
+    			winch.controlWinch(-ahrs.getRoll());
+    			if(driveTrain.leftEnc.getDistance()<-150)
     			{
     				ahrs.reset();
     				driveTrain.setAngleSetpoint(35);
@@ -164,6 +170,21 @@ public class Robot extends IterativeRobot {
     				driveTrain.setTurnDone(false);
     			}
     		}
+    		break;
+    	case lowBar:
+    		if(step==1){
+    			System.out.println("Step 1");
+    			driveTrain.driveDistanceForwards();
+    			if(driveTrain.leftEnc.getDistance()<-173)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(15);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		
     		if(step==2){
     			System.out.println("Step 2");
     			driveTrain.turnToAngle();
@@ -174,19 +195,20 @@ public class Robot extends IterativeRobot {
     				step++;
     				driveTrain.resetEncoders();
     				ahrs.reset();
-    				driveTrain.setDistanceSetpoint(-30);
+    				driveTrain.setDistanceSetpoint(-10);
     				driveTrain.pidEnable();
     				
     			}
     		}
+    		
     		if(step==3)
     		{
     			System.out.println("Step 3");
     			driveTrain.driveDistanceForwards();
-    			if(driveTrain.leftEnc.getDistance()<-30)
+    			if(driveTrain.leftEnc.getDistance()<-10)
     			{
     				ahrs.reset();
-    				driveTrain.setAngleSetpoint(-155);
+    				driveTrain.setAngleSetpoint(-138);
     				step++;
     				driveTrain.pidDisable();
     				driveTrain.setTurnDone(false);
@@ -202,23 +224,57 @@ public class Robot extends IterativeRobot {
     				step++;
     				ahrs.reset();
     				driveTrain.resetEncoders();
-    				driveTrain.setDistanceSetpoint(15);
+    				driveTrain.setDistanceSetpoint(52);
     				driveTrain.pidEnable();
     			}
     		}
+    		
     		if(step==5)
     		{
     			System.out.println("Step 5");
     			driveTrain.driveDistanceForwards();
-    			if(driveTrain.leftEnc.getDistance()>15)
+    			if(driveTrain.leftEnc.getDistance()>52)
     			{
     				ahrs.reset();
-    				driveTrain.setAngleSetpoint(0);
+    				//driveTrain.setAngleSetpoint(0);
     				step++;
     				driveTrain.pidDisable();
     				driveTrain.setTurnDone(false);
     			}
     		}
+    		if(step==6)
+    		{
+    			System.out.print("Step 6");
+    			winch.setAngle(40);
+    			winch.controlWinch(-ahrs.getRoll());
+    			if(-ahrs.getRoll()>30)
+    			{
+    				step++;
+    			}
+    		}
+    		if(step==7)
+    		{
+    			System.out.println("Step 7");
+    			shooter.spinUp();
+    			winch.setAngle(-15);
+    			winch.controlWinch(-ahrs.getRoll());
+    		}
+    		/*
+    		if(step==6)
+    		{
+    			winch.setAngle(56);
+    			winch.changeAngle(-ahrs.getRoll());
+    			if(Math.abs(-ahrs.getRoll()-56)<1)
+    				step++;
+    		}
+    		if(step==7)
+        	{
+        		shooter.spinUp();
+        		if(time.get()>13.5)
+        			shooter.shoot();
+        	}
+        	*/
+    		/*
     		if(step==6)
     		{
     			System.out.println("Step 6");
@@ -236,7 +292,7 @@ public class Robot extends IterativeRobot {
     	    	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
     			winch.setAngle(calculatedAngle2);
     			winch.controlWinch(-ahrs.getRoll());
-    			int setTarget = 131; 
+    			int setTarget = 123; 
     			try{
     	    		double[] points = network.getNumberArray("BFR_COORDINATES");
     	    		xVal = (points[0]+points[2]+points[4]+points[6])/4;	
@@ -281,16 +337,19 @@ public class Robot extends IterativeRobot {
     			shooter.shoot();
     	}
     	/*
-    	if(!driveTrain.getTurnDone()){
+    	if(!driveTrain.getTurnDone()){``
     		driveTrain.turnToAngle();
     	}
     	*/
+    }
     }
     
 
     public void teleopInit(){
     	//repR.clear();
     	//repL.clear();
+    	shooter.stop();
+    	driveTrain.pidDisable();
     	winch.setAngle(0);
     	driveModeHelper = false;
     	tankDrive = false;
@@ -318,13 +377,14 @@ public class Robot extends IterativeRobot {
     	//{
     		//SmartDashboard.putNumber(""+i, points[i]);
     	//}
+    	/*
     	try{
     		double[] points = network.getNumberArray("BFR_COORDINATES");
     		yVal = (points[1]+points[3]+points[5]+points[7])/4;
-    		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034  - 1;
-    		calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
+    		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034;
+    		//calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
     	}
-    	catch(Exception e){};
+    	catch(Exception e){System.out.println("No camera data");}
     	try{
     		double[] points = network.getNumberArray("BFR_COORDINATES");
     		xVal = (points[0]+points[2]+points[4]+points[6])/4;	
@@ -333,11 +393,11 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Y Value", yVal);
     	SmartDashboard.putNumber("X Value", xVal);
     	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
-    	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
-    	
+    	//SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
+    	*/
     	if(oi.A.get())
 		{
-    		int setTarget = 131; 
+    		int setTarget = 118; 
 			double tempOutput = 0;
 			double output = 0;
 			if(Math.abs(setTarget - xVal) > 15){
@@ -427,7 +487,7 @@ public class Robot extends IterativeRobot {
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
     		   	
-    		driveTrain.drive.arcadeDrive(oi.getLeftY()*sensitivity, oi.getRightX()*sensitivity);
+    		driveTrain.drive.arcadeDrive(Math.min(.9, oi.getLeftY()*sensitivity), Math.min(.9, oi.getRightX()*sensitivity));
     		
     		//repL.add(l);
     		//repR.add(r);
@@ -496,7 +556,7 @@ public class Robot extends IterativeRobot {
     	if(oi.b7.get())
     		winch.setAngle(42);
     	if(oi.b8.get())
-    		winch.setAngle(53);
+    		winch.setAngle(50);
     	if(oi.b11.get())
     		winch.setAngle(0);
     	if(oi.b10.get())
@@ -511,6 +571,9 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Yaw", ahrs.getYaw());
     	SmartDashboard.putNumber("Pitch", ahrs.getPitch());
     	SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
+    	SmartDashboard.putBoolean("Piston", shooter.out);
+    	
+    	SmartDashboard.putNumber("Seconds Remaining", 150 - time.get());
     	shooter.log();
     	driveTrain.log();
   }
