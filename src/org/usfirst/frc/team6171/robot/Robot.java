@@ -551,16 +551,31 @@ public class Robot extends IterativeRobot {
     	//this mapping sucks major ass!!!!! <---  ***** !!!!!
     	if(oi.rightBig.get())
     		winch.setAngle(calculatedAngle-2);
-    	if(oi.b9.get())
+    	if(oi.b9.get()){
     		winch.setAngle(25);
-    	if(oi.b7.get())
+    		SmartDashboard.putNumber("Set Angle", 25);
+    	}
+    		
+    	if(oi.b7.get()){
     		winch.setAngle(42);
-    	if(oi.b8.get())
+    		SmartDashboard.putNumber("Set Angle", 42);
+    	}
+    		
+    	if(oi.b8.get()){
     		winch.setAngle(50);
-    	if(oi.b11.get())
+    		SmartDashboard.putNumber("Set Angle", 50);
+    	}
+    		
+    	if(oi.b11.get()){
     		winch.setAngle(0);
-    	if(oi.b10.get())
+    		SmartDashboard.putNumber("Set Angle", 0);
+    	}
+    		
+    	if(oi.b10.get()){
     		winch.setAngle(-15);
+    		SmartDashboard.putNumber("Set Angle", -15);
+    	}
+    		
     	
     	if(oi.thumb.get())
         	winch.controlWinch(-ahrs.getRoll());
@@ -572,7 +587,6 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Pitch", ahrs.getPitch());
     	SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
     	SmartDashboard.putBoolean("Piston", shooter.out);
-    	
     	SmartDashboard.putNumber("Seconds Remaining", 150 - time.get());
     	shooter.log();
     	driveTrain.log();

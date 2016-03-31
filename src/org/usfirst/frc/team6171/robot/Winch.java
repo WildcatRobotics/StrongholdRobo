@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 public class Winch {
 	CANTalon winch;
 	double setpoint;
+	MyPIDController winchPID;
 	
 	public static double WinchKp = .035;
 	
@@ -17,11 +18,15 @@ public class Winch {
 		winch = new CANTalon(RobotMap.KWinch);
 		winch.changeControlMode(TalonControlMode.PercentVbus);
 		setpoint = 0;
+		winchPID = new MyPIDController(.1, .001, .01);
+		winchPID.enable();
+		winchPID.setOutputRange(-.3, .3);
 		//Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
 	 
 	 public void controlWinch(double roll) {
 			 //WinchKp = Math.abs(roll)<30 ? .04 : .02;
+		 /*
 			double tempOutput = 0;
 			double output = 0;
 			if(Math.abs(setpoint - roll) > 1){
@@ -31,19 +36,23 @@ public class Winch {
 					winch.set(-(setpoint - roll)*Kp);
 				}
 				else
-					winch.set(0);*/
+					winch.set(0);
 				tempOutput = -(setpoint - roll)*WinchKp;
 			}
 			output = Math.max(-.2, Math.min(.3, tempOutput));
 			winch.set(output);	
+			*/
+		 winchPID.setSetPoint(setpoint);
+		 double output = winchPID.getOutput(roll);
+		 winch.set(output);
 	 }
 	 
 	 public void controlWinch(double joyInput, double angle){
 		// if(!limitSwitch.get()){
 			 SmartDashboard.putNumber("joyInput", joyInput);
-			 if(angle>57)
+			 if(angle>47)
 				 winch.set(0);
-			 else if(angle<-20)
+			 else if(angle<-15)
 			 	winch.set(-.1);
 			 else
 			 {
