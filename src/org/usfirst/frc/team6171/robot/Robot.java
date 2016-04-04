@@ -33,14 +33,22 @@ public class Robot extends IterativeRobot {
 	Drivetrain driveTrain;
 	Shooter shooter;
 	Winch winch;
-	SendableChooser chooser;
+	SendableChooser positionChooser;
+	SendableChooser obstacleChooser;
 	public static AHRS ahrs;
 	CameraServer server;
 	NetworkTable network;
 	
-	final String lowShoot = "Low Shoot";
-	final String obstacle = "Obstacle";
 	final String lowBar = "Low Bar";
+	final String two = "Two";
+	final String three = "Three";
+	final String four = "Four";
+	final String five = "Five";
+	
+	final String moat = "Moat";
+	final String rockWall = "Rock Wall";
+	final String roughTerrain = "Rough Terrain";
+	final String ramparts = "Ramparts";
 	
 	boolean tankDrive; // used to see if mode button is clicked
 	boolean driveModeHelper;
@@ -49,8 +57,12 @@ public class Robot extends IterativeRobot {
 	double sensitivity, yVal, calculatedAngle, xVal, calculatedAngle2;
 	
 	int step;
+	int autoDistance;
 	
-	String autoSelected;
+	final int BIG_OBSTACLE_DISTANCE = 150;
+	final int ROUGH_TERRAIN_DISTANCE = 125;
+	
+	String positionSelected;
 	//these store the data from teleop for use in autonomous replay
 	//ArrayList<Double> repL, repR;
 	
@@ -66,11 +78,19 @@ public class Robot extends IterativeRobot {
     	winch = new Winch();
     	oi = new OI();
     	
-    	chooser = new SendableChooser();
-    	chooser.addDefault("Low Bar and Shoot", lowShoot);
-    	chooser.addObject("Obstacle", obstacle);
-    	chooser.addObject("Low Bar Only", lowBar);
-    	SmartDashboard.putData("Autonomous Chooser", chooser);
+    	positionChooser = new SendableChooser();
+    	positionChooser.addDefault("Low Bar", lowBar);
+    	positionChooser.addObject("Second Position", two);
+    	positionChooser.addObject("Third Position", three);
+    	positionChooser.addObject("Fourth Position", four);
+    	positionChooser.addObject("Fifth Position", five);
+    	SmartDashboard.putData("Autonomous Chooser", positionChooser);
+    	
+    	obstacleChooser = new SendableChooser();
+    	obstacleChooser.addDefault("Moat", moat);
+    	obstacleChooser.addObject("Ramparts", ramparts);
+    	obstacleChooser.addObject("Rock Wall", rockWall);
+    	obstacleChooser.addObject("Rough Terrain", roughTerrain);
     	
     	try {
 	          ahrs = new AHRS(SPI.Port.kMXP); 
@@ -97,35 +117,61 @@ public class Robot extends IterativeRobot {
 		
 		xVal = 0;
 		yVal = 0;
+		autoDistance = 0;
     }
     
     public void autonomousInit(){
     	
     	time.reset();
     	time.start();
-    	
     	driveTrain.resetEncoders();
     	ahrs.reset();
-    	String autoSelected = (String) chooser.getSelected();
+    	String positionSelected = (String) positionChooser.getSelected();
+    	String obstacleSelected = (String) obstacleChooser.getSelected();
     	//driveTrain.setDistanceSetpoint(150);
     	//driveTrain.pidEnable();
     	//driveTrain.setAngleSetpoint(180);
     	step = 1;
-    	switch(autoSelected){
-    	case lowShoot:
-    
-    		break;
-    	case obstacle:
-    		winch.setAngle(15);
-    		driveTrain.setDistanceSetpoint(-150);
-    		driveTrain.setOutputRange(-.9, .9);
-    		driveTrain.pidEnable();
-    		
-    		break;
+    	switch(positionSelected){
     	case lowBar:
     		driveTrain.setOutputRange(-.6, .6);
     		driveTrain.setDistanceSetpoint(-173);
     		driveTrain.pidEnable();
+    		break;
+    	case two:
+    	case three:
+    		/*
+    		winch.setAngle(15);
+    		driveTrain.setDistanceSetpoint(-150);
+    		driveTrain.setOutputRange(-.9, .9);
+    		driveTrain.pidEnable();
+    		*/
+    	case four:
+    	case five:
+    		switch(obstacleSelected){
+    		case moat:
+    		case rockWall:
+    			winch.setAngle(15);
+    			driveTrain.setDistanceSetpoint(150);
+    			autoDistance = BIG_OBSTACLE_DISTANCE;
+    			driveTrain.setOutputRange(-.9,.9);
+    			driveTrain.pidEnable();
+    			break;
+    		case roughTerrain:
+    			winch.setAngle(15);
+    			driveTrain.setDistanceSetpoint(125);
+    			autoDistance = ROUGH_TERRAIN_DISTANCE;
+    			driveTrain.setOutputRange(-.8,.8);
+    			driveTrain.pidEnable();
+    			break;
+    		case ramparts:
+    			winch.setAngle(15);
+    			driveTrain.setDistanceSetpoint(-150);
+    			autoDistance = -BIG_OBSTACLE_DISTANCE;
+    			driveTrain.setOutputRange(-.9,.9);
+    			driveTrain.pidEnable();
+    			break;
+    		}
     		break;
     	}
     	
@@ -151,26 +197,9 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
     	*/
     	
-    	String autoSelected = (String) chooser.getSelected();
-    	switch(autoSelected){
-    	case lowShoot:
-    
-    		break;
-    	case obstacle:
-    		if(step==1){
-    			System.out.println("Step 1");
-    			driveTrain.driveDistanceForwards();
-    			winch.controlWinch(-ahrs.getRoll());
-    			if(driveTrain.leftEnc.getDistance()<-150)
-    			{
-    				ahrs.reset();
-    				driveTrain.setAngleSetpoint(35);
-    				step++;
-    				driveTrain.pidDisable();
-    				driveTrain.setTurnDone(false);
-    			}
-    		}
-    		break;
+    	String positionSelected = (String) positionChooser.getSelected();
+    	String obstacleSelected = (String) obstacleChooser.getSelected();
+    	switch(positionSelected){
     	case lowBar:
     		if(step==1){
     			System.out.println("Step 1");
@@ -341,6 +370,67 @@ public class Robot extends IterativeRobot {
     		driveTrain.turnToAngle();
     	}
     	*/
+    		break;
+    	case two:
+    		if(step==1){
+    			System.out.println("Step 1");
+    			driveTrain.driveDistanceForwards();
+    			winch.controlWinch(-ahrs.getRoll());
+    			if(driveTrain.leftEnc.getDistance()<-autoDistance)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(35);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		break;
+    	case three:
+    		if(step==1){
+    			System.out.println("Step 1");
+    			driveTrain.driveDistanceForwards();
+    			winch.controlWinch(-ahrs.getRoll());
+    			if(driveTrain.leftEnc.getDistance()<-autoDistance)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(35);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		break;
+    	case four:
+    		if(step==1){
+    			System.out.println("Step 1");
+    			driveTrain.driveDistanceForwards();
+    			winch.controlWinch(-ahrs.getRoll());
+    			if(driveTrain.leftEnc.getDistance()<-autoDistance)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(35);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		break;
+    	case five:
+    		if(step==1){
+    			System.out.println("Step 1");
+    			driveTrain.driveDistanceForwards();
+    			winch.controlWinch(-ahrs.getRoll());
+    			if(driveTrain.leftEnc.getDistance()<-autoDistance)
+    			{
+    				ahrs.reset();
+    				driveTrain.setAngleSetpoint(35);
+    				step++;
+    				driveTrain.pidDisable();
+    				driveTrain.setTurnDone(false);
+    			}
+    		}
+    		break;
     }
     }
     
@@ -351,6 +441,7 @@ public class Robot extends IterativeRobot {
     	shooter.stop();
     	driveTrain.pidDisable();
     	winch.setAngle(0);
+    	winch.enable();
     	driveModeHelper = false;
     	tankDrive = false;
     	isShooting = isStopping = isIntaking = push = pushed = false;
@@ -562,8 +653,8 @@ public class Robot extends IterativeRobot {
     	}
     		
     	if(oi.b8.get()){
-    		winch.setAngle(50);
-    		SmartDashboard.putNumber("Set Angle", 50);
+    		winch.setAngle(53);
+    		SmartDashboard.putNumber("Set Angle", 53);
     	}
     		
     	if(oi.b11.get()){
@@ -572,16 +663,19 @@ public class Robot extends IterativeRobot {
     	}
     		
     	if(oi.b10.get()){
-    		winch.setAngle(-15);
-    		SmartDashboard.putNumber("Set Angle", -15);
+    		winch.setAngle(-18);
+    		SmartDashboard.putNumber("Set Angle", -18);
     	}
     		
     	
-    	if(oi.thumb.get())
-        	winch.controlWinch(-ahrs.getRoll());
-       	else
-       		winch.controlWinch(oi.flight.getRawAxis(1), -ahrs.getRoll());
-    	
+    	//if(oi.thumb.get())
+        winch.controlWinch(-ahrs.getRoll());
+       	//else
+       		//winch.controlWinch(oi.flight.getRawAxis(1), -ahrs.getRoll());
+        if(oi.thumb.get())
+        	winch.changeAngle(oi.flight.getRawAxis(1)*.6);
+        
+        
     	SmartDashboard.putNumber("Roll", ahrs.getRoll());
     	SmartDashboard.putNumber("Yaw", ahrs.getYaw());
     	SmartDashboard.putNumber("Pitch", ahrs.getPitch());

@@ -1,5 +1,6 @@
 package org.usfirst.frc.team6171.robot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class MyPIDController
 {
@@ -71,7 +72,9 @@ public class MyPIDController
 		if(enabled)
 		{
 			double dt = time.get()-previousTime;
-			integral += (getError(currentMeasure)+getError(previousMeasure))/2*dt;
+			if(Math.abs(currentMeasure - setPoint)>tolerance)
+				integral += (getError(currentMeasure)+getError(previousMeasure))/2*dt;
+			SmartDashboard.putNumber("Integral", integral);
 			double derivative = (getError(currentMeasure)-getError(previousMeasure))/dt;
 			
 			double output = kP*getError(currentMeasure) + kI*integral + kD*derivative;

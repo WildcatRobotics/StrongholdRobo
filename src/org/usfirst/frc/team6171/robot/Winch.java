@@ -18,12 +18,19 @@ public class Winch {
 		winch = new CANTalon(RobotMap.KWinch);
 		winch.changeControlMode(TalonControlMode.PercentVbus);
 		setpoint = 0;
-		winchPID = new MyPIDController(.1, .001, .01);
+		winchPID = new MyPIDController(.01515, .0125, 0.0015);
 		winchPID.enable();
 		winchPID.setOutputRange(-.3, .3);
+		winchPID.setTolerance(.5);
 		//Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
 	 
+	public void enable()
+	{
+		winchPID.enable();
+		winchPID.setOutputRange(-.3, .3);
+		winchPID.setTolerance(.5);
+	}
 	 public void controlWinch(double roll) {
 			 //WinchKp = Math.abs(roll)<30 ? .04 : .02;
 		 /*
@@ -42,25 +49,32 @@ public class Winch {
 			output = Math.max(-.2, Math.min(.3, tempOutput));
 			winch.set(output);	
 			*/
+		 SmartDashboard.putNumber("Set Point", setpoint);
 		 winchPID.setSetPoint(setpoint);
-		 double output = winchPID.getOutput(roll);
+		 double output = -winchPID.getOutput(roll);
 		 winch.set(output);
 	 }
 	 
-	 public void controlWinch(double joyInput, double angle){
+	 public void controlWinch(double joyInput, double roll){
 		// if(!limitSwitch.get()){
 			 SmartDashboard.putNumber("joyInput", joyInput);
-			 if(angle>47)
+			 /*
+			 if(roll>47)
 				 winch.set(0);
-			 else if(angle<-15)
+			 else if(roll<-15)
 			 	winch.set(-.1);
 			 else
 			 {
-				 if(angle<-10)
+				 if(roll<-10)
 					 winch.set(-joyInput*.25);
 				 else
 					 winch.set(-joyInput*.2);
 			 }
+			 */
+			 winchPID.changeSetPoint(-joyInput*.2);
+			 changeAngle(-joyInput*.2);
+			 double output = -winchPID.getOutput(roll);
+			 winch.set(output);
 		// } 
 	 }
 	 
