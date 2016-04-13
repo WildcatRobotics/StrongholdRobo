@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,6 +37,7 @@ public class Robot extends IterativeRobot {
 	SendableChooser positionChooser;
 	SendableChooser obstacleChooser;
 	public static AHRS ahrs;
+	public static AHRS driveGyro;
 	CameraServer server;
 	NetworkTable network;
 	
@@ -91,13 +93,21 @@ public class Robot extends IterativeRobot {
     	obstacleChooser.addObject("Ramparts", ramparts);
     	obstacleChooser.addObject("Rock Wall", rockWall);
     	obstacleChooser.addObject("Rough Terrain", roughTerrain);
+    	SmartDashboard.putData("Auto Chooser 2", obstacleChooser);
     	
     	try {
 	          ahrs = new AHRS(SPI.Port.kMXP); 
 	      } catch (RuntimeException ex ) {
 	          DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
 	      }
-    	
+    	/*
+    	try {
+	          driveGyro = new AHRS(SerialPort.Port.kUSB); 
+	      } catch (RuntimeException ex ) {
+	          DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+	          System.out.println("no");
+	      }
+	      */
     	try{
     	server = CameraServer.getInstance();
         server.setQuality(50);
@@ -118,6 +128,7 @@ public class Robot extends IterativeRobot {
 		xVal = 0;
 		yVal = 0;
 		autoDistance = 0;
+		//driveGyro.reset();
     }
     
     public void autonomousInit(){
@@ -450,6 +461,7 @@ public class Robot extends IterativeRobot {
 		yVal = 0;
 		xVal = 0;
 		driveTrain.pidDisable();
+		//driveGyro.reset();
     }
     
     /**
@@ -603,6 +615,7 @@ public class Robot extends IterativeRobot {
     	if(isShooting)
     	{
     		shooter.spinUp();
+    		winch.setWinchTolerance(1);
     	}
     	else if(isIntaking)
     	{
@@ -611,6 +624,7 @@ public class Robot extends IterativeRobot {
     	else
     	{
     		shooter.stop();
+    		winch.setWinchTolerance(.7);
     	}
     	
     	if(push && !oi.trigger.get())
@@ -682,6 +696,11 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
     	SmartDashboard.putBoolean("Piston", shooter.out);
     	SmartDashboard.putNumber("Seconds Remaining", 150 - time.get());
+    	/*
+    	SmartDashboard.putNumber("Drive Roll", driveGyro.getRoll());
+    	SmartDashboard.putNumber("Drive Angle", driveGyro.getAngle());
+    	SmartDashboard.putNumber("Drive Yaw", driveGyro.getYaw());
+    	*/
     	shooter.log();
     	driveTrain.log();
   }

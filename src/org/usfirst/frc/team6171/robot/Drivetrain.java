@@ -44,8 +44,8 @@ public class Drivetrain {
         rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
 		drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
 		drive.setInvertedMotor(MotorType.kFrontRight, true);
-		drive.setInvertedMotor(MotorType.kRearRight, true);
-        drive.setInvertedMotor(MotorType.kFrontLeft, true);
+		drive.setInvertedMotor(MotorType.kRearRight, false);
+        drive.setInvertedMotor(MotorType.kFrontLeft, false);
         drive.setInvertedMotor(MotorType.kRearLeft, true);
         
         pidOut = new DriveOutput();

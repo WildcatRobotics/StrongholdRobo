@@ -74,6 +74,8 @@ public class MyPIDController
 			double dt = time.get()-previousTime;
 			if(Math.abs(currentMeasure - setPoint)>tolerance)
 				integral += (getError(currentMeasure)+getError(previousMeasure))/2*dt;
+			else
+				integral /= -4;
 			SmartDashboard.putNumber("Integral", integral);
 			double derivative = (getError(currentMeasure)-getError(previousMeasure))/dt;
 			

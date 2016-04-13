@@ -33,10 +33,10 @@ public class Shooter {
         rightTalon.configNominalOutputVoltage(0.0, 0.0);
         rightTalon.configPeakOutputVoltage(12.0, -12.0);
         rightTalon.setProfile(0);
-        rightTalon.setF(.01);
-        rightTalon.setP(.08);
-        rightTalon.setI(.0008);
-        rightTalon.setD(0.8);
+        rightTalon.setF(.02445367);
+        rightTalon.setP(.05);
+        rightTalon.setI(.0005);
+        rightTalon.setD(.1);
         
 //        Calibration for left talon motor
         leftTalon.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
@@ -44,11 +44,11 @@ public class Shooter {
         leftTalon.configNominalOutputVoltage(0.0, 0.0);
         leftTalon.configPeakOutputVoltage(12.0, -12.0);
         leftTalon.setProfile(0);
-        leftTalon.setF(.01);
+        leftTalon.setF(.02445367);
         //leftTalon.setP(.0823);  
-        leftTalon.setP(.08);
-        leftTalon.setI(.0008);
-        leftTalon.setD(0.8);
+        leftTalon.setP(.05);
+        leftTalon.setI(.0005);
+        leftTalon.setD(.1);
         
         comp = new Compressor(1);
         comp.setClosedLoopControl(true);
@@ -96,5 +96,6 @@ public class Shooter {
 		SmartDashboard.putNumber("Left Talon", leftTalon.getSpeed());
 		SmartDashboard.putNumber("Right Talon", rightTalon.getSpeed());
 		SmartDashboard.putBoolean("Piston", out);
+		//SmartDashboard.putNumber("Right output", leftTalon.get)
 	}
 }

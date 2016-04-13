@@ -18,9 +18,9 @@ public class Winch {
 		winch = new CANTalon(RobotMap.KWinch);
 		winch.changeControlMode(TalonControlMode.PercentVbus);
 		setpoint = 0;
-		winchPID = new MyPIDController(.01515, .0125, 0.0015);
+		winchPID = new MyPIDController(.01715, .03, 0.004);
 		winchPID.enable();
-		winchPID.setOutputRange(-.3, .3);
+		winchPID.setOutputRange(-.25, .25);
 		winchPID.setTolerance(.5);
 		//Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
@@ -28,8 +28,8 @@ public class Winch {
 	public void enable()
 	{
 		winchPID.enable();
-		winchPID.setOutputRange(-.3, .3);
-		winchPID.setTolerance(.5);
+		winchPID.setOutputRange(-.25, .25);
+		winchPID.setTolerance(.9);
 	}
 	 public void controlWinch(double roll) {
 			 //WinchKp = Math.abs(roll)<30 ? .04 : .02;
@@ -92,6 +92,11 @@ public class Winch {
 	 
 	 public void setAngle(double angle) {
 		 setpoint = angle;
+		 winchPID.enable();
+	 }
+	 
+	 public void setWinchTolerance(double tol){
+		 winchPID.setTolerance(tol);
 	 }
  }
  
