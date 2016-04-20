@@ -33,15 +33,15 @@ public class Drivetrain {
 		rightRear = new VictorSP(3);
 		
 		leftEnc = new Encoder(0, 1, true, EncodingType.k4X);
-		rightEnc = new Encoder(2, 3, false, EncodingType.k4X);
+		//rightEnc = new Encoder(2, 3, false, EncodingType.k4X);
 		leftEnc.setDistancePerPulse(.08726646);
-        rightEnc.setDistancePerPulse(.08726646);
+        //rightEnc.setDistancePerPulse(.08726646);
         leftEnc.setMinRate(1);
-        rightEnc.setMinRate(1);
+        //rightEnc.setMinRate(1);
         leftEnc.setSamplesToAverage(5);
-        rightEnc.setSamplesToAverage(5);
+        //rightEnc.setSamplesToAverage(5);
         leftEnc.setPIDSourceType(PIDSourceType.kDisplacement);
-        rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
+        //rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
 		drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
 		drive.setInvertedMotor(MotorType.kFrontRight, true);
 		drive.setInvertedMotor(MotorType.kRearRight, false);
@@ -60,7 +60,7 @@ public class Drivetrain {
 	public void resetEncoders()
 	{
 		leftEnc.reset();
-    	rightEnc.reset();
+    	//rightEnc.reset();
 	}
 	
 	public void setOutput(double out){
@@ -145,9 +145,9 @@ public class Drivetrain {
 	
 	public void log(){
 		SmartDashboard.putNumber("Left Speed", leftEnc.getRate());
-		SmartDashboard.putNumber("Right Speed", rightEnc.getRate());
+		//SmartDashboard.putNumber("Right Speed", rightEnc.getRate());
 		SmartDashboard.putNumber("Left Distance", leftEnc.getDistance());
-		SmartDashboard.putNumber("Right Distance", rightEnc.getDistance());
+		//SmartDashboard.putNumber("Right Distance", rightEnc.getDistance());
 	}
 	private class DriveOutput implements PIDOutput {
 		double angle;

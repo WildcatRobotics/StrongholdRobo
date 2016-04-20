@@ -21,7 +21,7 @@ public class Winch {
 		winchPID = new MyPIDController(.01715, .03, 0.004);
 		winchPID.enable();
 		winchPID.setOutputRange(-.25, .25);
-		winchPID.setTolerance(.5);
+		winchPID.setTolerance(.7);
 		//Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
 	 
@@ -29,7 +29,7 @@ public class Winch {
 	{
 		winchPID.enable();
 		winchPID.setOutputRange(-.25, .25);
-		winchPID.setTolerance(.9);
+		winchPID.setTolerance(.7);
 	}
 	 public void controlWinch(double roll) {
 			 //WinchKp = Math.abs(roll)<30 ? .04 : .02;

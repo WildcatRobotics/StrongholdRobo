@@ -17,7 +17,7 @@ public class Shooter {
 	
 	//public static final int MAX_RPM = 4000;
 	//public static final int DESIRED_RPM = 1000;
-	final static int SHOOT_DESIRED_RPM = 5600;
+	final static int SHOOT_DESIRED_RPM = 4500;
     final static int INTAKE_DESIRED_RPM = 2500;
 	public static final double Kp = .1;
     public static final double Ki = .001;
