@@ -22,6 +22,7 @@ public class Winch {
 		winchPID.enable();
 		winchPID.setOutputRange(-.25, .25);
 		winchPID.setTolerance(.7);
+		winchPID.setDivide(-4);
 		//Karthik is a pretty cool guy  but he asked me to code this thing that I dont know how to do		 		 
 	 }
 	 

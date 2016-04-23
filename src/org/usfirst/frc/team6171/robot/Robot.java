@@ -56,7 +56,7 @@ public class Robot extends IterativeRobot {
 	
 	boolean tankDrive; // used to see if mode button is clicked
 	boolean driveModeHelper;
-	boolean isShooting, isStopping, isIntaking, push, pushed, aPush, aPushed;
+	boolean isShooting, isStopping, isIntaking, push, pushed, aPush, aPushed, xPush, xPushed;
 	
 	double sensitivity, yVal, calculatedAngle, xVal, calculatedAngle2;
 	
@@ -466,12 +466,16 @@ public class Robot extends IterativeRobot {
 		driveTrain.pidDisable();
 		//driveGyro.reset();
 		
-		xPID = new MyPIDController(.001, 0.1, 0);
-		xPID.setSetPoint(127);
-		xPID.setTolerance(.5);
-		xPID.setOutputRange(-.7, .7);
+		xPID = new MyPIDController(.1, 0, 0);
+		xPID.setSetPoint(0);
+		xPID.setTolerance(1);
+		xPID.setOutputRange(-.9, .9);
+		xPID.setDivide(2);
 		aPush = false;
 		aPushed = false;
+		xPush = false;
+		xPushed = false;
+		
     }
     
     /**
@@ -514,6 +518,12 @@ public class Robot extends IterativeRobot {
     	{
     		aPush = false;
     		aPushed = !aPushed;
+    		if(aPushed)
+    		{
+    			ahrs.reset();
+    			xPID.setSetPoint((xVal-140)/5);
+    		}
+    			
     	}
     	if(oi.A.get())
     		aPush = true;
@@ -561,12 +571,21 @@ public class Robot extends IterativeRobot {
     		*/
 			//THE FUCK?
 			//driveTrain.drive.arcadeDrive(0,0);
-    		if(!xPID.isEnabled())
-    			xPID.enable();
-    		double output = -xPID.getOutput(xVal);
-    		System.out.println("Output "+output);
-    		SmartDashboard.putNumber("xVal PID", output);
-			driveTrain.drive.arcadeDrive(0, output);
+    		try{
+    			//double[] temp = network.getNumberArray("BFR_COORDINATES");
+    			//double d = temp[1];
+    			if(!xPID.isEnabled())
+	    			xPID.enable();
+	    		double output = -xPID.getOutput(ahrs.getYaw());
+	    		//System.out.println("Output "+output);
+	    		SmartDashboard.putNumber("xVal PID", output);
+				driveTrain.drive.arcadeDrive(0, output);
+    		}
+    		catch(Exception e){
+    			driveTrain.drive.arcadeDrive(0, 0);
+    			System.out.println("not seen");
+    		}
+	    		
 		}
     	else
     	{
@@ -574,6 +593,7 @@ public class Robot extends IterativeRobot {
     		xPID.disable();
     		
     	}
+    	SmartDashboard.putNumber("Integral", xPID.getIntegral());
     	SmartDashboard.putBoolean("xVal PID Enabled", xPID.isEnabled());
     	
 		if(oi.LB.get() && oi.RB.get())
@@ -587,7 +607,7 @@ public class Robot extends IterativeRobot {
 		}
 		else
 		{
-			driveTrain.drive.setMaxOutput(.7);
+			driveTrain.drive.setMaxOutput(.9);
 			sensitivity = 1;
 		}
 			
@@ -606,8 +626,34 @@ public class Robot extends IterativeRobot {
     	}
     	if(oi.back.get())
     		driveModeHelper = true;
-
-		if(!aPushed && tankDrive)
+    	
+    	if(xPush && !oi.X.get())
+    	{
+    		xPush = false;
+    		xPushed = !xPushed;
+    		if(xPushed)
+    		{
+    			ahrs.reset();
+				driveTrain.setAngleSetpoint(-160);
+				driveTrain.setTurnDone(false);
+    		}
+    		else
+    		{
+    			driveTrain.setTurnDone(true);
+    		}
+    	}
+    	if(xPushed)
+    	{
+    		driveTrain.turnToAngle();
+    		if(driveTrain.getTurnDone())
+    		{
+    			xPushed = false;
+    		}
+    	}
+    	if(oi.X.get())
+    		xPush = true;
+    	
+		if(!aPushed && !xPushed && tankDrive)
     	{
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTY); // value added
@@ -618,7 +664,7 @@ public class Robot extends IterativeRobot {
     		//repL.add(l);
     		//repR.add(r);
     	}
-    	else if(!aPushed && !tankDrive)
+    	else if(!aPushed && !xPushed && !tankDrive)
     	{
     		//l = oi.joy.getRawAxis(OI.LEFTY); // value added
     		//r = oi.joy.getRawAxis(OI.RIGHTX); // value added 
@@ -679,13 +725,24 @@ public class Robot extends IterativeRobot {
     	
     	if(oi.joy.getPOV()==0)
     	{
-    		winch.changeAngle(.5);
+    		intake.intakeOut();
     	}
     	if(oi.joy.getPOV()==180)
     	{
-    		winch.changeAngle(-.5);
+    		intake.intakeIn();
     	}
-    	
+    	if(oi.joy.getPOV()==90)
+    	{
+    		intake.spinIn();
+    	}
+    	if(oi.joy.getPOV()==270)
+    	{
+    		intake.spinOut();
+    	}
+    	if(oi.Y.get())
+    	{
+    		intake.stop();
+    	}
     	//this mapping sucks major ass!!!!! <---  ***** !!!!!
     	if(oi.rightBig.get())
     		winch.setAngle(calculatedAngle-2);
@@ -696,7 +753,7 @@ public class Robot extends IterativeRobot {
     		
     	if(oi.b7.get()){
     		winch.setAngle(31);
-    		SmartDashboard.putNumber("Set Angle", 42);
+    		SmartDashboard.putNumber("Set Angle", 37);
     	}
     		
     	if(oi.b8.get()){
@@ -727,6 +784,7 @@ public class Robot extends IterativeRobot {
         if(oi.thumb.get())
         	winch.changeAngle(oi.flight.getRawAxis(1)*.6);
 
+        
         
         
     	SmartDashboard.putNumber("Roll", ahrs.getRoll());

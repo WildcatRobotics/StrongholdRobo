@@ -17,7 +17,7 @@ public class Shooter {
 	
 	//public static final int MAX_RPM = 4000;
 	//public static final int DESIRED_RPM = 1000;
-	final static int SHOOT_DESIRED_RPM = 4500;
+	final static int SHOOT_DESIRED_RPM = 5000;
     final static int INTAKE_DESIRED_RPM = 2500;
 	public static final double Kp = .1;
     public static final double Ki = .001;
@@ -34,8 +34,8 @@ public class Shooter {
         rightTalon.configPeakOutputVoltage(12.0, -12.0);
         rightTalon.setProfile(0);
         rightTalon.setF(.02445367);
-        rightTalon.setP(.05);
-        rightTalon.setI(.0005);
+        rightTalon.setP(.02);
+        rightTalon.setI(.0001);
         rightTalon.setD(.1);
         
 //        Calibration for left talon motor
@@ -46,8 +46,8 @@ public class Shooter {
         leftTalon.setProfile(0);
         leftTalon.setF(.02445367);
         //leftTalon.setP(.0823);  
-        leftTalon.setP(.05);
-        leftTalon.setI(.0005);
+        leftTalon.setP(.02);
+        leftTalon.setI(.0001);
         leftTalon.setD(.1);
         
         comp = new Compressor(1);

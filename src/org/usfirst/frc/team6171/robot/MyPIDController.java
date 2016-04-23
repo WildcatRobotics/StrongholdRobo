@@ -6,7 +6,7 @@ public class MyPIDController
 {
 	private double kP, kI, kD;
 	private Timer time;
-	private double integral, previousMeasure, previousTime, tolerance, setPoint, minOutput, maxOutput;
+	private double integral, previousMeasure, previousTime, tolerance, setPoint, minOutput, maxOutput, divide;
 	private boolean enabled, onTarget;
 	public MyPIDController(double P, double I, double D)
 	{
@@ -54,9 +54,17 @@ public class MyPIDController
 	{
 		setPoint = setPointt;
 	}
+	public void setDivide(double div)
+	{
+		divide = div;
+	}
 	public void changeSetPoint(double change)
 	{
 		setPoint += change;
+	}
+	public double getIntegral()
+	{
+		return integral;
 	}
 	public boolean onTarget()
 	{
@@ -76,11 +84,11 @@ public class MyPIDController
 				integral += (getError(currentMeasure)+getError(previousMeasure))/2*dt;
 			else
 			{
-				integral /= -4;
+				integral /= divide;
 				//integral = 0;
 			}
 				
-			SmartDashboard.putNumber("Integral", integral);
+			//SmartDashboard.putNumber("Integral", integral);
 			double derivative = (getError(currentMeasure)-getError(previousMeasure))/dt;
 			
 			double output = kP*getError(currentMeasure) + kI*integral + kD*derivative;

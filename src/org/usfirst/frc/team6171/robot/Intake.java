@@ -9,7 +9,7 @@ public class Intake {
 	public DoubleSolenoid left, right;
 	
 	public Intake(){
-		roller = new VictorSP(5);
+		roller = new VictorSP(4);
 		left = new DoubleSolenoid(2, 3);
 		right = new DoubleSolenoid(4, 5);
 	}
@@ -24,11 +24,16 @@ public class Intake {
 		right.set(Value.kReverse);
 	}
 	
-	public void spin(){
+	public void spinIn(){
 		roller.set(.5);
+	}
+	
+	public void spinOut(){
+		roller.set(-.5);
 	}
 	
 	public void stop(){
 		roller.set(0);
 	}
+	
 }

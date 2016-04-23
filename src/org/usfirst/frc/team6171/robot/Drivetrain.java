@@ -109,7 +109,6 @@ public class Drivetrain {
 		if(Math.abs(temp)<5)
 			turnDone = true;
 	}
-	
 	public void driveDistanceForwards()
 	{
 		log();
