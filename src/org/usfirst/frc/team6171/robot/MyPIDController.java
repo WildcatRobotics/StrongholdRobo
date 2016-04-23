@@ -54,6 +54,10 @@ public class MyPIDController
 	{
 		setPoint = setPointt;
 	}
+	public double getSetPoint()
+	{
+		return setPoint;
+	}
 	public void setDivide(double div)
 	{
 		divide = div;

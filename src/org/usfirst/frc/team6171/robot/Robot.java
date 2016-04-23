@@ -466,11 +466,11 @@ public class Robot extends IterativeRobot {
 		driveTrain.pidDisable();
 		//driveGyro.reset();
 		
-		xPID = new MyPIDController(.1, 0, 0);
+		xPID = new MyPIDController(.1, .2, 0.01);
 		xPID.setSetPoint(0);
-		xPID.setTolerance(1);
+		xPID.setTolerance(.05);
 		xPID.setOutputRange(-.9, .9);
-		xPID.setDivide(2);
+		xPID.setDivide(1.1);
 		aPush = false;
 		aPushed = false;
 		xPush = false;
@@ -576,9 +576,10 @@ public class Robot extends IterativeRobot {
     			//double d = temp[1];
     			if(!xPID.isEnabled())
 	    			xPID.enable();
-	    		double output = -xPID.getOutput(ahrs.getYaw());
+	    		double output = xPID.getOutput(ahrs.getYaw());
 	    		//System.out.println("Output "+output);
 	    		SmartDashboard.putNumber("xVal PID", output);
+	    		SmartDashboard.putNumber("xPID Setpoint", xPID.getSetPoint());
 				driveTrain.drive.arcadeDrive(0, output);
     		}
     		catch(Exception e){
