@@ -32,7 +32,7 @@ public class Drivetrain {
 		rightFront = new VictorSP(2);
 		rightRear = new VictorSP(3);
 		
-		leftEnc = new Encoder(0, 1, true, EncodingType.k4X);
+		leftEnc = new Encoder(0, 1, false, EncodingType.k4X);
 		//rightEnc = new Encoder(2, 3, false, EncodingType.k4X);
 		leftEnc.setDistancePerPulse(.08726646);
         //rightEnc.setDistancePerPulse(.08726646);

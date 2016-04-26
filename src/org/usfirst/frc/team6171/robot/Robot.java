@@ -136,6 +136,12 @@ public class Robot extends IterativeRobot {
     
     public void autonomousInit(){
     	
+    	xPID = new MyPIDController(.13, .2, 0);
+		xPID.setSetPoint(0);
+		xPID.setTolerance(.5);
+		xPID.setOutputRange(-.9, .9);
+		xPID.setDivide(1.1);
+    	winch.enable();
     	time.reset();
     	time.start();
     	driveTrain.resetEncoders();
@@ -148,8 +154,9 @@ public class Robot extends IterativeRobot {
     	step = 1;
     	switch(positionSelected){
     	case lowBar:
+    		winch.setAngle(-12);
     		driveTrain.setOutputRange(-.6, .6);
-    		driveTrain.setDistanceSetpoint(-173);
+    		driveTrain.setDistanceSetpoint(-178);
     		driveTrain.pidEnable();
     		break;
     	case two:
@@ -211,14 +218,37 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Calculated Angle 2", calculatedAngle2);
     	*/
     	
+    	try{
+    		double[] points = network.getNumberArray("BFR_COORDINATES");
+    		yVal = (points[1]+points[3]+points[5]+points[7])/4;
+    		calculatedAngle = .1544349*yVal +  20.1191;
+    		if(yVal<135)
+    		{
+    			calculatedAngle = 41;
+    		}
+    		//calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
+    	}
+    	catch(Exception e){
+    		//System.out.println("No camera data");
+    	}
+    	try{
+    		double[] points = network.getNumberArray("BFR_COORDINATES");
+    		xVal = (points[0]+points[2]+points[4]+points[6])/4;	
+    	}
+    	catch(Exception e){};
+    	SmartDashboard.putNumber("Y Value", yVal);
+    	SmartDashboard.putNumber("X Value", xVal);
+    	SmartDashboard.putNumber("Calculated Angle", calculatedAngle);
+    	
     	String positionSelected = (String) positionChooser.getSelected();
     	String obstacleSelected = (String) obstacleChooser.getSelected();
     	switch(positionSelected){
     	case lowBar:
+    		winch.controlWinch(-ahrs.getRoll());
     		if(step==1){
     			System.out.println("Step 1");
     			driveTrain.driveDistanceForwards();
-    			if(driveTrain.leftEnc.getDistance()<-173)
+    			if(driveTrain.leftEnc.getDistance()<-178)
     			{
     				ahrs.reset();
     				driveTrain.setAngleSetpoint(15);
@@ -267,8 +297,9 @@ public class Robot extends IterativeRobot {
     				step++;
     				ahrs.reset();
     				driveTrain.resetEncoders();
-    				driveTrain.setDistanceSetpoint(52);
+    				driveTrain.setDistanceSetpoint(22);
     				driveTrain.pidEnable();
+    				winch.setAngle(35);
     			}
     		}
     		
@@ -276,31 +307,50 @@ public class Robot extends IterativeRobot {
     		{
     			System.out.println("Step 5");
     			driveTrain.driveDistanceForwards();
-    			if(driveTrain.leftEnc.getDistance()>52)
+    			
+    			if(driveTrain.leftEnc.getDistance()>22)
     			{
     				ahrs.reset();
     				//driveTrain.setAngleSetpoint(0);
     				step++;
     				driveTrain.pidDisable();
     				driveTrain.setTurnDone(false);
+    				winch.setAngle(calculatedAngle);
+    				xPID.setSetPoint((xVal-120)/5);
+    				xPID.enable();
     			}
     		}
     		if(step==6)
     		{
     			System.out.print("Step 6");
-    			winch.setAngle(40);
-    			winch.controlWinch(-ahrs.getRoll());
-    			if(-ahrs.getRoll()>30)
-    			{
-    				step++;
-    			}
+    			
+    			//winch.controlWinch(-ahrs.getRoll());
+    			//if(!xPID.isEnabled())
+	    		//	xPID.enable();
+	    		double output = xPID.getOutput(ahrs.getYaw());
+	    		//System.out.println("Output "+output);
+	    		SmartDashboard.putNumber("xVal PID", output);
+	    		SmartDashboard.putNumber("xPID Setpoint", xPID.getSetPoint());
+				driveTrain.drive.arcadeDrive(0, output);
+				
+				if(time.get()>12)
+				{
+					xPID.disable();
+					step++;
+				}
     		}
     		if(step==7)
     		{
     			System.out.println("Step 7");
     			shooter.spinUp();
-    			winch.setAngle(-15);
-    			winch.controlWinch(-ahrs.getRoll());
+    			//winch.setAngle(-15);
+    			//winch.controlWinch(-ahrs.getRoll());
+    			winch.disable();
+    			if(shooter.leftTalon.getSpeed()>5000 && time.get()>13)
+    			{
+    				step++;
+    				shooter.shoot();
+    			}
     		}
     		/*
     		if(step==6)
@@ -498,8 +548,11 @@ public class Robot extends IterativeRobot {
     	try{
     		double[] points = network.getNumberArray("BFR_COORDINATES");
     		yVal = (points[1]+points[3]+points[5]+points[7])/4;
-    		calculatedAngle = 0.0002518742119781*yVal*yVal + -.0087280159262*yVal + 36.073278686034;
-    		//calculatedAngle2 = -.0000044453428178035*yVal*yVal*yVal + .00307170493685*yVal*yVal + -.5815769037743*yVal + 73.269152919889;
+    		calculatedAngle = .1544349*yVal +  20.1191;
+    		if(yVal<135)
+    		{
+    			calculatedAngle = 41;
+    		}
     	}
     	catch(Exception e){
     		//System.out.println("No camera data");
@@ -760,7 +813,8 @@ public class Robot extends IterativeRobot {
     	}
     	//this mapping sucks major ass!!!!! <---  ***** !!!!!
     	if(oi.rightBig.get())
-    		winch.setAngle(calculatedAngle-2);
+    		winch.setAngle(calculatedAngle);
+    	
     	if(oi.b9.get()){
     		winch.setAngle(25);
     		SmartDashboard.putNumber("Set Angle", 25);
