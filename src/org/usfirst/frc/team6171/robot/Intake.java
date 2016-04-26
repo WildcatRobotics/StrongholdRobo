@@ -25,7 +25,7 @@ public class Intake {
 	}
 	
 	public void spinIn(){
-		roller.set(.5);
+		roller.set(0.5);
 	}
 	
 	public void spinOut(){

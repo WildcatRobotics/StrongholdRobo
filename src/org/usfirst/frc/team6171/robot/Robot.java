@@ -466,9 +466,9 @@ public class Robot extends IterativeRobot {
 		driveTrain.pidDisable();
 		//driveGyro.reset();
 		
-		xPID = new MyPIDController(.1, .2, 0.01);
+		xPID = new MyPIDController(.13, .2, 0);
 		xPID.setSetPoint(0);
-		xPID.setTolerance(.05);
+		xPID.setTolerance(.5);
 		xPID.setOutputRange(-.9, .9);
 		xPID.setDivide(1.1);
 		aPush = false;
@@ -521,7 +521,15 @@ public class Robot extends IterativeRobot {
     		if(aPushed)
     		{
     			ahrs.reset();
-    			xPID.setSetPoint((xVal-140)/5);
+    			if(xVal<140)
+    			{
+    				xPID.setSetPoint((xVal-0-120)/5);
+    			}
+    			else
+    			{
+    				xPID.setSetPoint((xVal+0-120)/5);
+    			}
+    				
     		}
     			
     	}
@@ -690,12 +698,16 @@ public class Robot extends IterativeRobot {
     	{
     		isShooting = false;
     		isIntaking = false;
+    		winch.enable();
+    		xPID.enable();
     	}
    
     	if(isShooting)
     	{
     		shooter.spinUp();
     		winch.setWinchTolerance(1);
+    		winch.disable();
+    		xPID.disable();
     	}
     	else if(isIntaking)
     	{
@@ -704,6 +716,7 @@ public class Robot extends IterativeRobot {
     	else
     	{
     		shooter.stop();
+    		//winch.enable();
     		winch.setWinchTolerance(.7);
     	}
     	
@@ -727,6 +740,7 @@ public class Robot extends IterativeRobot {
     	if(oi.joy.getPOV()==0)
     	{
     		intake.intakeOut();
+    		intake.spinIn();
     	}
     	if(oi.joy.getPOV()==180)
     	{
@@ -753,7 +767,7 @@ public class Robot extends IterativeRobot {
     	}
     		
     	if(oi.b7.get()){
-    		winch.setAngle(31);
+    		winch.setAngle(41);
     		SmartDashboard.putNumber("Set Angle", 37);
     	}
     		
@@ -768,7 +782,7 @@ public class Robot extends IterativeRobot {
     	}
     		
     	if(oi.b10.get()){
-    		winch.setAngle(-18);
+    		winch.setAngle(-15);
     		SmartDashboard.putNumber("Set Angle", -10);
     	}
     	if(oi.b12.get()){

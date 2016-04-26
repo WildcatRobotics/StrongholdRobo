@@ -32,7 +32,11 @@ public class Winch {
 		winchPID.setOutputRange(-.25, .25);
 		winchPID.setTolerance(.7);
 	}
-	 public void controlWinch(double roll) {
+	public void disable()
+	{
+		winchPID.disable();
+	}
+	public void controlWinch(double roll) {
 			 //WinchKp = Math.abs(roll)<30 ? .04 : .02;
 		 /*
 			double tempOutput = 0;
