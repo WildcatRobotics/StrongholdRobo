@@ -5,6 +5,29 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class MyPIDController
 {
 	private double kP, kI, kD;
+	public double getkP() {
+		return kP;
+	}
+
+	public void setkP(double kP) {
+		this.kP = kP;
+	}
+
+	public double getkI() {
+		return kI;
+	}
+
+	public void setkI(double kI) {
+		this.kI = kI;
+	}
+
+	public double getkD() {
+		return kD;
+	}
+
+	public void setkD(double kD) {
+		this.kD = kD;
+	}
 	private Timer time;
 	private double integral, previousMeasure, previousTime, tolerance, setPoint, minOutput, maxOutput, divide;
 	private boolean enabled, onTarget;
@@ -105,7 +128,7 @@ public class MyPIDController
 		return 0;
 		
 	}
-	private double getError(double num)
+	public double getError(double num)
 	{
 		return setPoint - num;
 	}

@@ -47,6 +47,7 @@ public class OI {
 		b10 = new JoystickButton(flight, 10);
 		b11 = new JoystickButton(flight, 11);
 		b12 = new JoystickButton(flight, 12);
+		
 	}
 	
 	public double getLeftY()

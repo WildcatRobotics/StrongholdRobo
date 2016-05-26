@@ -44,8 +44,8 @@ public class Drivetrain {
         //rightEnc.setPIDSourceType(PIDSourceType.kDisplacement);
 		drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
 		drive.setInvertedMotor(MotorType.kFrontRight, true);
-		drive.setInvertedMotor(MotorType.kRearRight, false);
-        drive.setInvertedMotor(MotorType.kFrontLeft, false);
+		drive.setInvertedMotor(MotorType.kRearRight, true);
+        drive.setInvertedMotor(MotorType.kFrontLeft, true);
         drive.setInvertedMotor(MotorType.kRearLeft, true);
         
         pidOut = new DriveOutput();
@@ -147,6 +147,7 @@ public class Drivetrain {
 		//SmartDashboard.putNumber("Right Speed", rightEnc.getRate());
 		SmartDashboard.putNumber("Left Distance", leftEnc.getDistance());
 		//SmartDashboard.putNumber("Right Distance", rightEnc.getDistance());
+		SmartDashboard.putBoolean("XPID On", Robot.xPID.isEnabled());
 	}
 	private class DriveOutput implements PIDOutput {
 		double angle;
