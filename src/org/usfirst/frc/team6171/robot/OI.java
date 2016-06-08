@@ -12,13 +12,13 @@ public class OI {
 	public static final int RIGHTX = 4;
 	public static final int RIGHTY = 5;
 	JoystickButton X, A, B, Y, LB, RB, back, start, leftJoy, rightJoy;
-	
+	JoystickButton Xf,Af,Bf,Yf,LBf,RBf,backf,startf,leftJoyf,rightJoyf;
 //	Flight Stick Buttons
 	public static final int YAXIS = 1;
 	public static final int SLIDER = 3;
 	JoystickButton trigger, thumb, leftSmall, leftBig, rightSmall, rightBig, b7, b8, b9, b10, b11, b12;	
 	
-	Joystick joy, flight;
+	Joystick joy, flight,xboxShooter;
 
 	public OI(){
 //		XBOX
@@ -34,6 +34,7 @@ public class OI {
 		leftJoy = new JoystickButton(joy, 9);
 		rightJoy = new JoystickButton(joy, 10);
 //		FlightStick
+		/*
 		flight = new Joystick(0);
 		trigger = new JoystickButton(flight, 1);
 		thumb = new JoystickButton(flight, 2);
@@ -47,6 +48,12 @@ public class OI {
 		b10 = new JoystickButton(flight, 10);
 		b11 = new JoystickButton(flight, 11);
 		b12 = new JoystickButton(flight, 12);
+		*/
+		xboxShooter = new Joystick(0);
+		Af = new JoystickButton(xboxShooter,1);
+		Bf = new JoystickButton(xboxShooter,2);
+		Xf = new JoystickButton(xboxShooter,3);
+		Yf = new JoystickButton(xboxShooter,4);
 		
 	}
 	
@@ -77,6 +84,10 @@ public class OI {
 	public double getFlightY()
 	{
 		return flight.getRawAxis(YAXIS);
+	}
+	public double getShooterY()
+	{
+		return xboxShooter.getRawAxis(LEFTY);
 	}
 	public double getSliderValue()
 	{

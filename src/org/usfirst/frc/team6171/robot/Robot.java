@@ -949,17 +949,17 @@ public class Robot extends IterativeRobot {
     		driveTrain.drive.arcadeDrive(oi.getLeftY()*sensitivity, oi.getRightX()*sensitivity);
     	}
 
-		if(oi.leftSmall.get())
+		if(oi.Af.get())
     	{
     		isShooting = false;
     		isIntaking = true;
     	}
-    	if(oi.rightSmall.get())
+    	if(oi.Xf.get())
     	{
     		isShooting = true;
     		isIntaking = false;
     	}
-    	if(oi.leftBig.get())
+    	if(oi.Bf.get())
     	{
     		isShooting = false;
     		isIntaking = false;
@@ -985,7 +985,7 @@ public class Robot extends IterativeRobot {
     		winch.setWinchTolerance(.7);
     	}
     	
-    	if(push && !oi.trigger.get())
+    	if(push && !oi.Yf.get())
     	{
     		push = false;
     		pushed = !pushed;
@@ -998,7 +998,7 @@ public class Robot extends IterativeRobot {
     			shooter.retract();
     		}
     	}
-    	if(oi.trigger.get())
+    	if(oi.Yf.get())
     		push = true;
     	
     	
@@ -1081,8 +1081,8 @@ public class Robot extends IterativeRobot {
     	//if(oi.thumb.get())
         winch.controlWinch(-ahrs.getRoll());
        	//else
-       		//winch.controlWinch(oi.flight.getRawAxis(1), -ahrs.getRoll());
-        if(oi.thumb.get())
+       		winch.controlWinch(oi.getShooterY(), -ahrs.getRoll());
+        //if(oi.thumb.get())
         	//winch.changeAngle(oi.flight.getRawAxis(1)*.6);
 
         
