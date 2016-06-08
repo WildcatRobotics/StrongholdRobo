@@ -902,7 +902,7 @@ public class Robot extends IterativeRobot {
 		}
 		else
 		{
-			driveTrain.drive.setMaxOutput(.9);
+			driveTrain.drive.setMaxOutput(.4);
 			sensitivity = 1;
 		}
 		
@@ -949,23 +949,38 @@ public class Robot extends IterativeRobot {
     		driveTrain.drive.arcadeDrive(oi.getLeftY()*sensitivity, oi.getRightX()*sensitivity);
     	}
 
-		if(oi.Af.get())
+		if(oi.Xf.get())
     	{
     		isShooting = false;
     		isIntaking = true;
     	}
-    	if(oi.Xf.get())
+    	if(oi.Bf.get())
     	{
     		isShooting = true;
     		isIntaking = false;
     	}
-    	if(oi.Bf.get())
+    	if(oi.Af.get())
     	{
     		isShooting = false;
     		isIntaking = false;
     		winch.enable();
     		xPID.enable();
     	}
+    	if(push && !oi.Yf.get())
+    	{
+    		push = false;
+    		pushed = !pushed;
+    		if(pushed)
+    		{
+    			shooter.shoot();
+    		}
+    		else
+    		{
+    			shooter.retract();
+    		}
+    	}
+    	if(oi.Yf.get())
+    		push = true;
    
     	if(isShooting)
     	{
@@ -985,44 +1000,21 @@ public class Robot extends IterativeRobot {
     		winch.setWinchTolerance(.7);
     	}
     	
-    	if(push && !oi.Yf.get())
-    	{
-    		push = false;
-    		pushed = !pushed;
-    		if(pushed)
-    		{
-    			shooter.shoot();
-    		}
-    		else
-    		{
-    			shooter.retract();
-    		}
+    	if(oi.getShooterPOV()==0){
+    		winch.setAngle(30);
     	}
-    	if(oi.Yf.get())
-    		push = true;
+    	if(oi.getShooterPOV()==90){
+    		winch.setAngle(0);
+    	}
+    	if(oi.getShooterPOV()==180){
+    		winch.setAngle(-15);
+    	}
+    	if(oi.getShooterPOV()==270){
+    		winch.setAngle(47);
+    	}
     	
     	
-    	if(oi.joy.getPOV()==0)
-    	{
-    		intake.intakeOut();
-    		intake.spinIn();
-    	}
-    	if(oi.joy.getPOV()==180)
-    	{
-    		intake.intakeIn();
-    	}
-    	if(oi.joy.getPOV()==90)
-    	{
-    		intake.spinIn();
-    	}
-    	if(oi.joy.getPOV()==270)
-    	{
-    		intake.spinOut();
-    	}
-    	if(oi.Y.get())
-    	{
-    		intake.stop();
-    	}
+    	
     	//this mapping sucks major ass!!!!! <---  ***** !!!!!
     	//SmartDashboard.putNumber("Flight POV", oi.flight.getPOV());
 //    	if(oi.b12.get())
@@ -1078,10 +1070,11 @@ public class Robot extends IterativeRobot {
     	}
     	*/
     	
-    	//if(oi.thumb.get())
-        winch.controlWinch(-ahrs.getRoll());
-       	//else
-       		winch.controlWinch(oi.getShooterY(), -ahrs.getRoll());
+    	if(oi.LBf.get())
+    		winch.controlWinch(oi.getShooterY()*-5, -ahrs.getRoll());
+    	else
+    		winch.controlWinch(-ahrs.getRoll());
+       		
         //if(oi.thumb.get())
         	//winch.changeAngle(oi.flight.getRawAxis(1)*.6);
 
@@ -1091,7 +1084,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Roll", ahrs.getRoll());
     	SmartDashboard.putNumber("Yaw", ahrs.getYaw());
     	SmartDashboard.putNumber("Pitch", ahrs.getPitch());
-    	SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
+    	//SmartDashboard.putNumber("Slider Value", oi.getSliderValue());
     	SmartDashboard.putBoolean("Piston", shooter.out);
     	SmartDashboard.putNumber("Seconds Remaining", 150 - time.get());
     	/*

@@ -12,6 +12,10 @@ public class OI {
 	public static final int RIGHTX = 4;
 	public static final int RIGHTY = 5;
 	JoystickButton X, A, B, Y, LB, RB, back, start, leftJoy, rightJoy;
+	//Af is stop flywheels
+	//Bf is flywheels spin out
+	//Yf is piston in and out
+	//Xf is flywheels spin in
 	JoystickButton Xf,Af,Bf,Yf,LBf,RBf,backf,startf,leftJoyf,rightJoyf;
 //	Flight Stick Buttons
 	public static final int YAXIS = 1;
@@ -33,6 +37,18 @@ public class OI {
 		start = new JoystickButton(joy, 8);
 		leftJoy = new JoystickButton(joy, 9);
 		rightJoy = new JoystickButton(joy, 10);
+//		Shooter Xbox
+		xboxShooter = new Joystick(2);
+		Af = new JoystickButton(xboxShooter,1);
+		Bf = new JoystickButton(xboxShooter,2);
+		Xf = new JoystickButton(xboxShooter,3);
+		Yf = new JoystickButton(xboxShooter,4);
+		LBf = new JoystickButton(xboxShooter, 5);
+		
+		
+		
+		
+		
 //		FlightStick
 		/*
 		flight = new Joystick(0);
@@ -49,11 +65,7 @@ public class OI {
 		b11 = new JoystickButton(flight, 11);
 		b12 = new JoystickButton(flight, 12);
 		*/
-		xboxShooter = new Joystick(0);
-		Af = new JoystickButton(xboxShooter,1);
-		Bf = new JoystickButton(xboxShooter,2);
-		Xf = new JoystickButton(xboxShooter,3);
-		Yf = new JoystickButton(xboxShooter,4);
+
 		
 	}
 	
@@ -81,16 +93,12 @@ public class OI {
 	{
 		return joy.getRawAxis(LTRIGGER);
 	}
-	public double getFlightY()
-	{
-		return flight.getRawAxis(YAXIS);
-	}
 	public double getShooterY()
 	{
 		return xboxShooter.getRawAxis(LEFTY);
 	}
-	public double getSliderValue()
-	{
-		return flight.getRawAxis(SLIDER);
+	public double getShooterPOV(){
+		return xboxShooter.getPOV();
 	}
+
 }
